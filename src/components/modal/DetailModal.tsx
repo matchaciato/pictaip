@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { X, Bookmark, Share2, Eye, Download, Check, Sparkles } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { X, Bookmark, Share2, Eye, Download } from 'lucide-react';
 import type { MediaItem } from '../../types/media';
 import { MediaViewer } from './MediaViewer';
 import { PromptInspector } from './PromptInspector';
@@ -8,6 +8,7 @@ import { DownloadDropdown } from './DownloadDropdown';
 import { RelatedGrid } from './RelatedGrid';
 import { formatCompactNumber, formatRelativeTime } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
+import { updatePromptWithAspectRatio, ASPECT_RATIO_OPTIONS } from '../../constants/aspectRatios';
 
 export interface DetailModalProps {
   item: MediaItem | null;
@@ -31,6 +32,14 @@ export const DetailModal: React.FC<DetailModalProps> = ({
   onSelectTag,
 }) => {
   const { showToast } = useToast();
+  const [selectedRatio, setSelectedRatio] = useState<string>('1:1');
+
+  // Synchronize initial ratio whenever the selected item changes
+  useEffect(() => {
+    if (item) {
+      setSelectedRatio(item.metadata.aspectRatio || '1:1');
+    }
+  }, [item?.id]);
 
   // Close on ESC & lock scroll
   useEffect(() => {
@@ -50,7 +59,26 @@ export const DetailModal: React.FC<DetailModalProps> = ({
     };
   }, [isOpen, item, onClose]);
 
-  if (!isOpen || !item) return null;
+  // Dynamically altered prompt incorporating chosen aspect ratio
+  const dynamicPrompt = useMemo(() => {
+    if (!item) return '';
+    return updatePromptWithAspectRatio(item.metadata.prompt, selectedRatio);
+  }, [item?.metadata.prompt, selectedRatio]);
+
+  // Dynamically calculated specs
+  const dynamicMetadata = useMemo(() => {
+    if (!item) return null;
+    const ratioOption = ASPECT_RATIO_OPTIONS.find((o) => o.ratio === selectedRatio);
+    return {
+      ...item.metadata,
+      aspectRatio: selectedRatio,
+      width: ratioOption?.width || item.metadata.width,
+      height: ratioOption?.height || item.metadata.height,
+      prompt: dynamicPrompt,
+    };
+  }, [item, selectedRatio, dynamicPrompt]);
+
+  if (!isOpen || !item || !dynamicMetadata) return null;
 
   const handleShare = () => {
     if (navigator.share) {
@@ -100,7 +128,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 border-b border-neutral-100 dark:border-neutral-800">
             {/* Left Column: Media Stage (55% on desktop) */}
             <div className="lg:col-span-7 bg-neutral-950 flex items-center justify-center overflow-hidden">
-              <MediaViewer item={item} />
+              <MediaViewer item={item} selectedRatio={selectedRatio} />
             </div>
 
             {/* Right Column: Prompt & Metadata Studio (45% on desktop) */}
@@ -173,16 +201,21 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                 </div>
               </div>
 
-              {/* 3. Primary Prompt & Negative Prompt Inspector */}
+              {/* 3. Primary Prompt with Interactive Aspect Ratio Selector */}
               <PromptInspector
-                prompt={item.metadata.prompt}
+                prompt={dynamicPrompt}
                 negativePrompt={item.metadata.negativePrompt}
                 tags={item.tags}
                 onSelectTag={onSelectTag}
+                selectedRatio={selectedRatio}
+                onSelectRatio={(ratio) => {
+                  setSelectedRatio(ratio);
+                  showToast(`Rasio diubah ke ${ratio} (Prompt diperbarui)`, 'info');
+                }}
               />
 
-              {/* 4. Generation Specs Breakdown Table */}
-              <SpecsTable metadata={item.metadata} mediaType={item.type} />
+              {/* 4. Generation Specs Breakdown Table (Dynamic based on selected ratio) */}
+              <SpecsTable metadata={dynamicMetadata} mediaType={item.type} />
 
               {/* 5. Download Center */}
               <div className="pt-2">

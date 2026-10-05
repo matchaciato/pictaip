@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { Copy, Check, ChevronDown, ChevronUp, Sparkles, Tag, ShieldCheck } from 'lucide-react';
+import { Copy, Check, ChevronDown, ChevronUp, Sparkles, Tag, ShieldCheck, Ratio } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
+import { ASPECT_RATIO_OPTIONS } from '../../constants/aspectRatios';
 
 export interface PromptInspectorProps {
   prompt: string;
   negativePrompt?: string;
   tags: string[];
   onSelectTag?: (tag: string) => void;
+  selectedRatio: string;
+  onSelectRatio: (ratio: string) => void;
 }
 
 export const PromptInspector: React.FC<PromptInspectorProps> = ({
@@ -14,6 +17,8 @@ export const PromptInspector: React.FC<PromptInspectorProps> = ({
   negativePrompt,
   tags,
   onSelectTag,
+  selectedRatio,
+  onSelectRatio,
 }) => {
   const { showToast } = useToast();
   const [isPromptCopied, setIsPromptCopied] = useState(false);
@@ -28,14 +33,47 @@ export const PromptInspector: React.FC<PromptInspectorProps> = ({
       setTimeout(() => setIsNegPromptCopied(false), 2000);
     } else {
       setIsPromptCopied(true);
-      showToast('Prompt utama berhasil disalin!', 'success');
+      showToast(`Prompt dengan [rasio: ${selectedRatio}] berhasil disalin!`, 'success');
       setTimeout(() => setIsPromptCopied(false), 2000);
     }
   };
 
   return (
     <div className="space-y-4">
-      {/* Primary Prompt Section */}
+      <div className="p-3.5 rounded-2xl bg-neutral-100/70 dark:bg-neutral-800/50 border border-neutral-200/70 dark:border-neutral-700/60 space-y-2">
+        <div className="flex items-center justify-between text-xs font-semibold text-neutral-600 dark:text-neutral-300">
+          <div className="flex items-center gap-1.5">
+            <Ratio className="w-3.5 h-3.5 text-red-500" />
+            <span>Pilih Rasio Aspek (Update Prompt Otomatis)</span>
+          </div>
+          <span className="text-[11px] font-mono font-bold text-red-600 dark:text-red-400 bg-red-500/10 px-2 py-0.5 rounded-md">
+            [rasio: {selectedRatio}]
+          </span>
+        </div>
+
+        <div className="flex flex-wrap gap-1.5">
+          {ASPECT_RATIO_OPTIONS.map((opt) => {
+            const isSelected = selectedRatio === opt.ratio;
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => onSelectRatio(opt.ratio)}
+                className={`px-3 py-1.5 text-xs rounded-full cursor-pointer transition-all active:scale-95 flex items-center gap-1 select-none ${
+                  isSelected
+                    ? 'bg-red-600 text-white font-bold shadow-xs'
+                    : 'bg-white dark:bg-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-600 text-neutral-800 dark:text-neutral-200 border border-neutral-200/60 dark:border-neutral-600/60'
+                }`}
+                title={`${opt.label}: ${opt.description}`}
+              >
+                <span>{opt.ratio}</span>
+                {isSelected && <Check className="w-3 h-3" />}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="rounded-2xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200/80 dark:border-neutral-700/70 p-4 transition-all">
         <div className="flex items-center justify-between gap-2 mb-2">
           <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
@@ -64,7 +102,6 @@ export const PromptInspector: React.FC<PromptInspectorProps> = ({
         </p>
       </div>
 
-      {/* Negative Prompt Accordion (if present) */}
       {negativePrompt && (
         <div className="rounded-2xl border border-neutral-200/70 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-850/40 overflow-hidden transition-all">
           <button
@@ -110,7 +147,6 @@ export const PromptInspector: React.FC<PromptInspectorProps> = ({
         </div>
       )}
 
-      {/* Tags Chips */}
       {tags.length > 0 && (
         <div>
           <div className="flex items-center gap-1.5 text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-2">
@@ -131,7 +167,6 @@ export const PromptInspector: React.FC<PromptInspectorProps> = ({
         </div>
       )}
 
-      {/* Free AI License Guarantee Badge */}
       <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs">
         <ShieldCheck className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
         <span>
