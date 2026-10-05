@@ -4,10 +4,6 @@ import {
   Bookmark,
   Trash2,
   X,
-  ExternalLink,
-  Sparkles,
-  Layers,
-  ChevronRight,
 } from 'lucide-react';
 import type { Board, MediaItem } from '../../types/media';
 import { DEFAULT_BOARD_ID } from '../../hooks/useBoards';
@@ -123,7 +119,7 @@ export const BoardDrawer: React.FC<BoardDrawerProps> = ({
         {/* Content Body: Sidebar Tabs + Grid Stage */}
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
           {/* Left Column: Boards List & Creator */}
-          <div className="w-full md:w-64 border-b md:border-b-0 md:border-r border-neutral-100 dark:border-neutral-800 p-4 shrink-0 flex flex-col justify-between bg-neutral-50/50 dark:bg-neutral-950/40 overflow-y-auto custom-scrollbar">
+          <div className="w-full md:w-64 max-h-44 md:max-h-none border-b md:border-b-0 md:border-r border-neutral-100 dark:border-neutral-800 p-3 sm:p-4 shrink-0 flex flex-col justify-between bg-neutral-50/50 dark:bg-neutral-950/40 overflow-y-auto custom-scrollbar">
             <div className="space-y-1">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-400">
@@ -229,7 +225,7 @@ export const BoardDrawer: React.FC<BoardDrawerProps> = ({
           </div>
 
           {/* Right Column: Active Board Grid */}
-          <div className="flex-1 p-5 overflow-y-auto custom-scrollbar flex flex-col">
+          <div className="flex-1 p-3 sm:p-5 overflow-y-auto custom-scrollbar flex flex-col">
             <div className="flex items-center justify-between pb-3 mb-4 border-b border-neutral-100 dark:border-neutral-800">
               <div>
                 <h3 className="text-base font-bold text-neutral-900 dark:text-neutral-100">
@@ -302,7 +298,7 @@ export const BoardDrawer: React.FC<BoardDrawerProps> = ({
                         {item.title}
                       </h5>
                       <p className="text-[11px] text-neutral-400 truncate mt-0.5">
-                        {item.metadata.modelName}
+                        {item.author.name} &bull; {item.metadata.aspectRatio}
                       </p>
                     </div>
                   </div>

@@ -12,7 +12,7 @@ import { useFilter } from './hooks/useFilter';
 import { useBoards } from './hooks/useBoards';
 import { useMediaData } from './hooks/useMediaData';
 import type { MediaItem, MediaCategory } from './types/media';
-import { Database, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 
 function MainApp() {
   const { showToast } = useToast();
@@ -32,7 +32,6 @@ function MainApp() {
   // Dynamic media items from Firebase Firestore (or resilient local fallback)
   const {
     mediaItems,
-    isLoading: isMediaLoading,
     isFirebaseConnected,
     isFirebaseAvailable,
     syncToFirestore,
@@ -59,7 +58,6 @@ function MainApp() {
     filters,
     updateFilter,
     resetFilters,
-    filteredItems,
     paginatedItems,
     totalResults,
     currentPage,

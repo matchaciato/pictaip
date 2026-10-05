@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Bookmark, Download, Copy, Play, Check } from 'lucide-react';
 import type { MediaItem } from '../../types/media';
-import { AI_MODELS } from '../../constants/models';
 import { formatDuration } from '../../utils/formatters';
 import { VideoPreview } from './VideoPreview';
 import { useToast } from '../../context/ToastContext';
@@ -25,8 +24,6 @@ export const MediaCard: React.FC<MediaCardProps> = ({
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
-
-  const modelConfig = AI_MODELS[item.metadata.modelId];
 
   // Aspect ratio calculation for zero-CLS container
   const aspectRatio =
@@ -96,20 +93,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({
           />
         )}
 
-        {/* 2. Model Badge (Top Left) */}
-        <div className="absolute top-3 left-3 z-20 pointer-events-none transition-transform duration-200">
-          <span
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide backdrop-blur-md border shadow-xs ${
-              modelConfig
-                ? `${modelConfig.color.bg} ${modelConfig.color.text} ${modelConfig.color.border}`
-                : 'bg-black/60 text-white border-white/20'
-            }`}
-          >
-            {modelConfig?.badgeLabel || item.metadata.modelName}
-          </span>
-        </div>
-
-        {/* 3. Video Duration Badge (Top Right when not hovered) */}
+        {/* Video Duration Badge (Top Right when not hovered) */}
         {item.type === 'video' && !isHovered && (
           <div className="absolute top-3 right-3 z-20 pointer-events-none">
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-black/70 text-white backdrop-blur-md">
