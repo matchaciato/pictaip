@@ -1,4 +1,5 @@
 import type { MediaItem } from '../types/media';
+import { IMAGE_AI_PUBLISHER, VIDEO_AI_PUBLISHER } from '../constants/publishers';
 
 /**
  * Comprehensive production-grade mock database for PictaIP.
@@ -7,7 +8,7 @@ import type { MediaItem } from '../types/media';
  * All media URLs use reliable high-resolution CDN assets and playable MP4 video loops.
  */
 
-export const MOCK_MEDIA_ITEMS: MediaItem[] = [
+const RAW_MEDIA_ITEMS: MediaItem[] = [
   // 1. FLUX.1 - Cyberpunk Geisha (Portrait)
   {
     id: 'ai-img-001',
@@ -1399,3 +1400,13 @@ export const MOCK_MEDIA_ITEMS: MediaItem[] = [
     createdAt: '2026-10-04T16:20:00Z',
   },
 ];
+
+/**
+ * Standardized catalog where all image publishers are Image AI Studio
+ * and all video publishers are Video AI Motion as requested by QA.
+ */
+export const MOCK_MEDIA_ITEMS: MediaItem[] = RAW_MEDIA_ITEMS.map((item) => ({
+  ...item,
+  author: item.type === 'video' ? VIDEO_AI_PUBLISHER : IMAGE_AI_PUBLISHER,
+}));
+
