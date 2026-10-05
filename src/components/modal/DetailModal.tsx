@@ -39,7 +39,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
     if (item) {
       setSelectedRatio(item.metadata.aspectRatio || '1:1');
     }
-  }, [item?.id]);
+  }, [item?.id, item?.metadata.aspectRatio]);
 
   // Close on ESC & lock scroll
   useEffect(() => {
@@ -63,7 +63,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
   const dynamicPrompt = useMemo(() => {
     if (!item) return '';
     return updatePromptWithAspectRatio(item.metadata.prompt, selectedRatio);
-  }, [item?.metadata.prompt, selectedRatio]);
+  }, [item, selectedRatio]);
 
   // Dynamically calculated specs
   const dynamicMetadata = useMemo(() => {

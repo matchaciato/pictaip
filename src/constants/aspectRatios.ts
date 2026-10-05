@@ -75,10 +75,9 @@ export function updatePromptWithAspectRatio(originalPrompt: string, newRatio: st
   if (!originalPrompt) return `[rasio: ${newRatio}]`;
 
   let prompt = originalPrompt.trim();
+  if (!prompt) return `[rasio: ${newRatio}]`;
 
-  // Pattern 1: replace existing [rasio: ...] or [rasio ...]
   const rasioPattern = /\[rasio:?\s*[^\]]+\]/gi;
-  // Pattern 2: replace existing --ar \d+:\d+
   const arPattern = /--ar\s+\d+:\d+/gi;
 
   if (rasioPattern.test(prompt)) {
@@ -86,7 +85,6 @@ export function updatePromptWithAspectRatio(originalPrompt: string, newRatio: st
   } else if (arPattern.test(prompt)) {
     prompt = prompt.replace(arPattern, `--ar ${newRatio} [rasio: ${newRatio}]`);
   } else {
-    // Append at the end cleanly
     prompt = `${prompt} [rasio: ${newRatio}]`;
   }
 

@@ -80,7 +80,7 @@ export const Footer: React.FC = () => {
 
         <div className="pt-6 border-t border-neutral-100 dark:border-neutral-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-neutral-400">
           <p>
-            &copy; {new Date().getFullYear()} PictaIP. All Rights Reserved.
+            &copy; 2026 PictaIP. All Rights Reserved.
           </p>
         </div>
       </div>

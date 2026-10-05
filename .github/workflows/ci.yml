@@ -1,133 +1,108 @@
-name: CI/CD Quality Gate & Build
+name: CI Pipeline
 
 on:
   push:
-    branches:
-      - main
-      - develop
+    branches: [main, master, develop]
   pull_request:
-    branches:
-      - main
-      - develop
+    branches: [main, master, develop]
   workflow_dispatch:
 
-# Cancel in-progress runs for the same branch/PR to save runner minutes
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  # -----------------------------------------------------------
-  # 1. Linting & Static Code Analysis
-  # -----------------------------------------------------------
-  lint:
-    name: 🔍 Lint & Code Style
+  code-quality:
+    name: Code Quality & Type Safety
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install pnpm
+      - name: Setup pnpm
         uses: pnpm/action-setup@v4
+        with:
+          run_install: false
 
-      - name: Setup Node.js 20.x
+      - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run Oxlint
-        run: pnpm run lint
+      - name: Run Linter (oxlint)
+        run: pnpm lint
 
-  # -----------------------------------------------------------
-  # 2. Strict TypeScript Type Checking
-  # -----------------------------------------------------------
-  typecheck:
-    name: 🏷️ TypeScript Type Check
+      - name: Run TypeScript Verification (typecheck)
+        run: pnpm typecheck
+
+  unit-tests:
+    name: Automated Unit & Integration Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install pnpm
+      - name: Setup pnpm
         uses: pnpm/action-setup@v4
+        with:
+          run_install: false
 
-      - name: Setup Node.js 20.x
+      - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run TypeScript Compiler (tsc -b)
-        run: pnpm exec tsc -b
+      - name: Run Test Suite (Vitest)
+        run: pnpm test
 
-  # -----------------------------------------------------------
-  # 3. Automated Unit & Integration Testing
-  # -----------------------------------------------------------
-  test:
-    name: 🧪 Automated Vitest Tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js 20.x
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run Vitest Test Suite
-        run: pnpm run test
-
-  # -----------------------------------------------------------
-  # 4. Production Build Verification & Artifact Upload
-  # -----------------------------------------------------------
-  build:
-    name: 📦 Production Build Gate
-    needs: [lint, typecheck, test]
+  build-validation:
+    name: Production Build Verification
+    needs: [code-quality, unit-tests]
     runs-on: ubuntu-latest
     env:
-      VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY || 'dummy_api_key' }}
-      VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN || 'dummy.firebaseapp.com' }}
-      VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID || 'dummy-project' }}
-      VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET || 'dummy.firebasestorage.app' }}
-      VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID || '123456789' }}
-      VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID || '1:123:web:abc' }}
+      VITE_FIREBASE_API_KEY: mock_api_key_for_ci
+      VITE_FIREBASE_AUTH_DOMAIN: mock_project.firebaseapp.com
+      VITE_FIREBASE_PROJECT_ID: mock_project_id
+      VITE_FIREBASE_STORAGE_BUCKET: mock_project.appspot.com
+      VITE_FIREBASE_MESSAGING_SENDER_ID: 1234567890
+      VITE_FIREBASE_APP_ID: 1:1234567890:web:abcdef
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install pnpm
+      - name: Setup pnpm
         uses: pnpm/action-setup@v4
+        with:
+          run_install: false
 
-      - name: Setup Node.js 20.x
+      - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build Production Bundle
-        run: pnpm run build
+      - name: Build Production Bundle (Vite)
+        run: pnpm build
 
-      - name: Upload Production Build Artifact
+      - name: Verify Build Artifacts
+        run: |
+          test -f dist/index.html || (echo "Error: dist/index.html missing" && exit 1)
+          echo "Production build verified successfully."
+
+      - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pictaip-dist-bundle
+          name: pictaip-production-build
           path: dist/
           retention-days: 7
