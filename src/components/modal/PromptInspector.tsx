@@ -40,11 +40,11 @@ export const PromptInspector: React.FC<PromptInspectorProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="p-3.5 rounded-2xl bg-neutral-100/70 dark:bg-neutral-800/50 border border-neutral-200/70 dark:border-neutral-700/60 space-y-2">
-        <div className="flex items-center justify-between text-xs font-semibold text-neutral-600 dark:text-neutral-300">
+      <div className="p-3 sm:p-3.5 rounded-2xl bg-neutral-100/70 dark:bg-neutral-800/50 border border-neutral-200/70 dark:border-neutral-700/60 space-y-2">
+        <div className="flex flex-wrap items-center justify-between gap-1.5 text-xs font-semibold text-neutral-600 dark:text-neutral-300">
           <div className="flex items-center gap-1.5">
             <Ratio className="w-3.5 h-3.5 text-red-500" />
-            <span>Pilih Rasio Aspek (Update Prompt Otomatis)</span>
+            <span>Pilih Rasio Aspek (Update Prompt)</span>
           </div>
           <span className="text-[11px] font-mono font-bold text-red-600 dark:text-red-400 bg-red-500/10 px-2 py-0.5 rounded-md">
             [rasio: {selectedRatio}]

@@ -97,7 +97,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-1.5 sm:p-4 md:p-6 overflow-y-auto"
       role="dialog"
       aria-modal="true"
     >
@@ -110,16 +110,16 @@ export const DetailModal: React.FC<DetailModalProps> = ({
 
       {/* Main Studio Card */}
       <div
-        className="relative z-10 w-full max-w-5xl bg-white dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-800 rounded-3xl sm:rounded-4xl shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col animate-in zoom-in-95 fade-in duration-200"
+        className="relative z-10 w-full max-w-5xl bg-white dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-800 rounded-2xl sm:rounded-4xl shadow-2xl overflow-hidden my-auto max-h-[94vh] sm:max-h-[92vh] flex flex-col animate-in zoom-in-95 fade-in duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Floating Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-40 p-2.5 rounded-full bg-white/90 dark:bg-neutral-800/90 hover:bg-white dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-100 shadow-lg backdrop-blur-md transition-all active:scale-95 cursor-pointer"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 z-40 p-2 sm:p-2.5 rounded-full bg-white/90 dark:bg-neutral-800/90 hover:bg-white dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-100 shadow-lg backdrop-blur-md transition-all active:scale-95 cursor-pointer"
           aria-label="Tutup jendela detail"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
 
         {/* Scrollable Container */}
@@ -132,37 +132,37 @@ export const DetailModal: React.FC<DetailModalProps> = ({
             </div>
 
             {/* Right Column: Prompt & Metadata Studio (45% on desktop) */}
-            <div className="lg:col-span-5 p-5 sm:p-7 flex flex-col justify-between space-y-6 bg-white dark:bg-neutral-900">
+            <div className="lg:col-span-5 p-4 sm:p-7 flex flex-col justify-between space-y-5 sm:space-y-6 bg-white dark:bg-neutral-900">
               {/* 1. Header Toolbar (Creator Info + Actions) */}
-              <div className="flex items-center justify-between gap-3 pb-4 border-b border-neutral-100 dark:border-neutral-800">
-                <div className="flex items-center gap-3 min-w-0">
+              <div className="flex items-center justify-between gap-3 pb-3 sm:pb-4 border-b border-neutral-100 dark:border-neutral-800">
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                   <img
                     src={item.author.avatarUrl}
                     alt={item.author.name}
-                    className="w-10 h-10 rounded-full object-cover shrink-0 border border-neutral-200 dark:border-neutral-700 shadow-xs"
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover shrink-0 border border-neutral-200 dark:border-neutral-700 shadow-xs"
                   />
                   <div className="min-w-0">
                     <h4 className="text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">
                       {item.author.name}
                     </h4>
-                    <p className="text-xs text-neutral-400 dark:text-neutral-500 truncate">
+                    <p className="text-[11px] sm:text-xs text-neutral-400 dark:text-neutral-500 truncate">
                       @{item.author.handle} &bull; {formatRelativeTime(item.createdAt)}
                     </p>
                   </div>
                 </div>
 
                 {/* Top Action Buttons */}
-                <div className="flex items-center gap-1.5 shrink-0 pr-8 lg:pr-0">
+                <div className="flex items-center gap-1.5 shrink-0 pr-9 sm:pr-11 lg:pr-0">
                   <button
                     onClick={handleShare}
-                    className="p-2.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 transition-colors cursor-pointer"
+                    className="p-2 sm:p-2.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 transition-colors cursor-pointer"
                     title="Bagikan Visual"
                   >
                     <Share2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={(e) => onToggleSave(item.id, e)}
-                    className={`px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-sm ${
+                    className={`px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-bold transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-sm ${
                       isSaved
                         ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900'
                         : 'bg-red-600 hover:bg-red-700 text-white'

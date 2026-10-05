@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Copy, Check, Cpu, Ratio, Hash, Sliders, Layers, Clock, Film } from 'lucide-react';
 import type { AIMetadata } from '../../types/media';
-import { AI_MODELS } from '../../constants/models';
 import { useToast } from '../../context/ToastContext';
 import { formatDuration } from '../../utils/formatters';
 
@@ -14,8 +13,6 @@ export const SpecsTable: React.FC<SpecsTableProps> = ({ metadata, mediaType }) =
   const { showToast } = useToast();
   const [isSeedCopied, setIsSeedCopied] = useState(false);
 
-  const modelConfig = AI_MODELS[metadata.modelId];
-
   const handleCopySeed = () => {
     navigator.clipboard.writeText(metadata.seed.toString());
     setIsSeedCopied(true);
@@ -27,18 +24,10 @@ export const SpecsTable: React.FC<SpecsTableProps> = ({ metadata, mediaType }) =
     <div className="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900/60 p-4 space-y-3">
       <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
         <Cpu className="w-3.5 h-3.5 text-red-500" />
-        <span>Spesifikasi Generator AI</span>
+        <span>Spesifikasi Parameter AI</span>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
-        {/* Model */}
-        <div className="p-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-800">
-          <span className="text-neutral-400 dark:text-neutral-500 block mb-0.5">Model AI</span>
-          <span className="font-semibold text-neutral-900 dark:text-neutral-100 truncate block">
-            {modelConfig?.name || metadata.modelName}
-          </span>
-        </div>
-
         {/* Orientation & Resolution */}
         <div className="p-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-800">
           <div className="flex items-center gap-1 text-neutral-400 dark:text-neutral-500 mb-0.5">
