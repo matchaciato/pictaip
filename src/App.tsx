@@ -4,11 +4,12 @@ import { Header } from './components/layout/Header';
 import { CategoryPills } from './components/layout/CategoryPills';
 import { FilterBar } from './components/layout/FilterBar';
 import { MasonryGrid } from './components/feed/MasonryGrid';
+import { DetailModal } from './components/modal/DetailModal';
 import { useFilter } from './hooks/useFilter';
 import { MOCK_MEDIA_ITEMS } from './data/mockMedia';
 import type { MediaItem, MediaCategory } from './types/media';
 import { Modal } from './components/common/Modal';
-import { Bookmark, Sparkles, Trash2, ExternalLink } from 'lucide-react';
+import { Bookmark } from 'lucide-react';
 
 function MainApp() {
   const { showToast } = useToast();
@@ -63,6 +64,31 @@ function MainApp() {
       console.error('Failed to save pins to localStorage:', e);
     }
   }, [savedPins]);
+
+  // Deep linking: read '?pin=id' from URL on load
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const pinId = params.get('pin');
+    if (pinId) {
+      const found = MOCK_MEDIA_ITEMS.find((m) => m.id === pinId);
+      if (found) setSelectedItem(found);
+    }
+  }, []);
+
+  // Update URL on pin selection
+  const handleOpenDetail = (item: MediaItem) => {
+    setSelectedItem(item);
+    const url = new URL(window.location.href);
+    url.searchParams.set('pin', item.id);
+    window.history.pushState({}, '', url.toString());
+  };
+
+  const handleCloseDetail = () => {
+    setSelectedItem(null);
+    const url = new URL(window.location.href);
+    url.searchParams.delete('pin');
+    window.history.pushState({}, '', url.toString());
+  };
 
   const toggleDarkMode = () => {
     setIsDarkMode((prev) => {
@@ -129,15 +155,30 @@ function MainApp() {
           items={filteredItems}
           savedPins={savedPins}
           onToggleSave={handleToggleSave}
-          onSelect={(item) => {
-            setSelectedItem(item);
-            showToast(`Membuka: ${item.title}`, 'info');
-          }}
+          onSelect={handleOpenDetail}
           onResetFilters={resetFilters}
         />
       </main>
 
-      {/* 5. Board / Saved Pins Modal */}
+      {/* 5. Detail Pin Studio Modal */}
+      <DetailModal
+        item={selectedItem}
+        allItems={MOCK_MEDIA_ITEMS}
+        isOpen={selectedItem !== null}
+        onClose={handleCloseDetail}
+        isSaved={selectedItem ? savedPins.includes(selectedItem.id) : false}
+        onToggleSave={handleToggleSave}
+        onSelectRelated={(relatedItem) => {
+          handleOpenDetail(relatedItem);
+        }}
+        onSelectTag={(tag) => {
+          handleCloseDetail();
+          updateFilter('searchQuery', tag);
+          showToast(`Menyaring tag: #${tag}`, 'info');
+        }}
+      />
+
+      {/* 6. Board / Saved Pins Modal */}
       <Modal
         isOpen={isBoardsModalOpen}
         onClose={() => setIsBoardsModalOpen(false)}
@@ -176,7 +217,11 @@ function MainApp() {
                 {savedItemsList.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center gap-3 p-2.5 rounded-2xl bg-neutral-100/70 dark:bg-neutral-800/60 border border-neutral-200/50 dark:border-neutral-700/50 group"
+                    onClick={() => {
+                      setIsBoardsModalOpen(false);
+                      handleOpenDetail(item);
+                    }}
+                    className="flex items-center gap-3 p-2.5 rounded-2xl bg-neutral-100/70 dark:bg-neutral-800/60 border border-neutral-200/50 dark:border-neutral-700/50 group cursor-pointer hover:bg-neutral-200/60 dark:hover:bg-neutral-800 transition-colors"
                   >
                     <img
                       src={item.previewUrl}
