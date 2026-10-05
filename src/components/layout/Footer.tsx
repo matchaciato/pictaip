@@ -21,7 +21,6 @@ export const Footer: React.FC = () => {
     <footer className="mt-16 border-t border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-          {/* Col 1: Brand Info */}
           <div className="md:col-span-2 space-y-3">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-red-600 to-amber-500 flex items-center justify-center text-white shadow-sm">
@@ -35,13 +34,8 @@ export const Footer: React.FC = () => {
               Platform discovery dan kurasi visual AI (gambar & video) gratis seperti Pinterest.
               Setiap karya dilengkapi prompt engineering lengkap, negative prompt, seed, model parameter, serta resolusi unduhan bebas royalti.
             </p>
-            <div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400 pt-1 font-medium">
-              <ShieldCheck className="w-4 h-4" />
-              <span>100% Gratis untuk Proyek Komersial & Personal</span>
-            </div>
           </div>
 
-          {/* Col 2: Supported AI Models */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 mb-3">
               Model Generator
@@ -56,7 +50,6 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Col 3: Keyboard Shortcuts */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 mb-3 flex items-center gap-1.5">
               <Keyboard className="w-3.5 h-3.5" />
@@ -85,19 +78,13 @@ export const Footer: React.FC = () => {
           </div>
         </div>
 
-        {/* Bottom Bar */}
         <div className="pt-6 border-t border-neutral-100 dark:border-neutral-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-neutral-400">
           <p>
-            &copy; {new Date().getFullYear()} PictaIP. Dibuat dengan kecintaan pada seni generatif AI.
+            &copy; {new Date().getFullYear()} PictaIP. All Rights Reserved.
           </p>
-          <div className="flex items-center gap-1 text-neutral-400">
-            <span>Dirancang dengan standar senior UI/UX</span>
-            <Heart className="w-3 h-3 text-red-500 fill-current" />
-          </div>
         </div>
       </div>
 
-      {/* Floating Back to Top Button */}
       {showBackToTop && (
         <button
           onClick={scrollToTop}
