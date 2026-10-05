@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export interface PaginationProps {
   currentPage: number;
@@ -49,9 +49,9 @@ export const Pagination: React.FC<PaginationProps> = ({
   };
 
   return (
-    <div className="mt-8 pt-6 border-t border-neutral-200/70 dark:border-neutral-800 flex flex-col sm:flex-row items-center justify-between gap-4 select-none">
+    <div className="mt-8 pt-6 border-t border-neutral-200/70 dark:border-neutral-800 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 select-none">
       {/* Result Range Info */}
-      <div className="text-xs text-neutral-500 dark:text-neutral-400">
+      <div className="text-xs text-neutral-500 dark:text-neutral-400 text-center sm:text-left">
         Menampilkan{' '}
         <strong className="text-neutral-900 dark:text-neutral-100">
           {startIndex}-{endIndex}
@@ -60,12 +60,12 @@ export const Pagination: React.FC<PaginationProps> = ({
       </div>
 
       {/* Page Navigation Controls */}
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap justify-center">
         {/* Previous Button */}
         <button
           onClick={() => handlePageClick(currentPage - 1)}
           disabled={currentPage === 1}
-          className="p-2 rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
+          className="p-1.5 sm:p-2 rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
           title="Halaman Sebelumnya"
         >
           <ChevronLeft className="w-4 h-4" />
@@ -77,7 +77,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             return (
               <span
                 key={`ellipsis-${idx}`}
-                className="px-2 py-1 text-xs text-neutral-400 select-none"
+                className="px-1.5 sm:px-2 py-1 text-xs text-neutral-400 select-none"
               >
                 ...
               </span>
@@ -91,7 +91,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             <button
               key={`page-${pageNum}`}
               onClick={() => handlePageClick(pageNum)}
-              className={`min-w-8 h-8 px-2.5 rounded-xl text-xs font-semibold cursor-pointer transition-all active:scale-95 ${
+              className={`min-w-7 sm:min-w-8 h-7 sm:h-8 px-2 sm:px-2.5 rounded-xl text-xs font-semibold cursor-pointer transition-all active:scale-95 ${
                 isActive
                   ? 'bg-red-600 text-white shadow-xs font-bold'
                   : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
@@ -106,7 +106,7 @@ export const Pagination: React.FC<PaginationProps> = ({
         <button
           onClick={() => handlePageClick(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="p-2 rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
+          className="p-1.5 sm:p-2 rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
           title="Halaman Berikutnya"
         >
           <ChevronRight className="w-4 h-4" />

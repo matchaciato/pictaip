@@ -4,12 +4,10 @@ import {
   Video as VideoIcon,
   Layers,
   RotateCcw,
-  Sparkles,
   SlidersHorizontal,
   ChevronDown,
 } from 'lucide-react';
-import type { FilterState, Orientation, AIModelId } from '../../types/media';
-import { AI_MODEL_LIST } from '../../constants/models';
+import type { FilterState } from '../../types/media';
 
 export interface FilterBarProps {
   filters: FilterState;
@@ -26,16 +24,14 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 }) => {
   const isFiltered =
     filters.mediaType !== 'all' ||
-    filters.orientation !== 'all' ||
-    filters.modelId !== 'all' ||
     filters.searchQuery !== '' ||
     filters.category !== 'All';
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2">
-      <div className="flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm">
-        {/* Left Side: Media Type Tabs & Dropdowns */}
-        <div className="flex flex-wrap items-center gap-2">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 text-xs sm:text-sm">
+        {/* Left Side: Media Type Tabs & Reset */}
+        <div className="flex items-center gap-2 flex-wrap">
           {/* Media Type Segmented Pills */}
           <div className="inline-flex p-1 rounded-full bg-neutral-100 dark:bg-neutral-800/80 border border-neutral-200/60 dark:border-neutral-700/60">
             <button
@@ -73,42 +69,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             </button>
           </div>
 
-          {/* Orientation Dropdown */}
-          <div className="relative inline-flex items-center">
-            <select
-              value={filters.orientation}
-              onChange={(e) =>
-                onFilterChange('orientation', e.target.value as 'all' | Orientation)
-              }
-              className="appearance-none h-8.5 pl-3 pr-8 rounded-full bg-neutral-100 hover:bg-neutral-200/70 dark:bg-neutral-800/80 dark:hover:bg-neutral-700/80 text-neutral-800 dark:text-neutral-200 border border-neutral-200/60 dark:border-neutral-700/60 font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500/20"
-            >
-              <option value="all">Semua Rasio</option>
-              <option value="portrait">Portrait (9:16)</option>
-              <option value="landscape">Landscape (16:9)</option>
-              <option value="square">Square (1:1)</option>
-            </select>
-            <ChevronDown className="w-3.5 h-3.5 text-neutral-400 absolute right-2.5 pointer-events-none" />
-          </div>
-
-          {/* AI Model Dropdown */}
-          <div className="relative inline-flex items-center">
-            <select
-              value={filters.modelId}
-              onChange={(e) =>
-                onFilterChange('modelId', e.target.value as 'all' | AIModelId)
-              }
-              className="appearance-none h-8.5 pl-3 pr-8 rounded-full bg-neutral-100 hover:bg-neutral-200/70 dark:bg-neutral-800/80 dark:hover:bg-neutral-700/80 text-neutral-800 dark:text-neutral-200 border border-neutral-200/60 dark:border-neutral-700/60 font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500/20"
-            >
-              <option value="all">Semua Model AI</option>
-              {AI_MODEL_LIST.map((model) => (
-                <option key={model.id} value={model.id}>
-                  {model.name}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="w-3.5 h-3.5 text-neutral-400 absolute right-2.5 pointer-events-none" />
-          </div>
-
           {/* Reset Filters Button */}
           {isFiltered && (
             <button
@@ -123,8 +83,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         </div>
 
         {/* Right Side: Sort Selector & Results Counter */}
-        <div className="flex items-center gap-3 ml-auto">
-          <span className="text-xs text-neutral-500 dark:text-neutral-400 hidden sm:inline">
+        <div className="flex items-center justify-between sm:justify-end gap-2.5 sm:gap-3 w-full sm:w-auto">
+          <span className="text-xs text-neutral-500 dark:text-neutral-400">
             <span className="font-semibold text-neutral-900 dark:text-neutral-100">
               {totalResults}
             </span>{' '}
@@ -141,7 +101,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                   e.target.value as 'trending' | 'latest' | 'most-downloaded'
                 )
               }
-              className="appearance-none h-8.5 pl-8 pr-8 rounded-full bg-neutral-100 hover:bg-neutral-200/70 dark:bg-neutral-800/80 dark:hover:bg-neutral-700/80 text-neutral-800 dark:text-neutral-200 border border-neutral-200/60 dark:border-neutral-700/60 font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500/20"
+              className="appearance-none h-8.5 pl-8 pr-8 rounded-full bg-neutral-100 hover:bg-neutral-200/70 dark:bg-neutral-800/80 dark:hover:bg-neutral-700/80 text-neutral-800 dark:text-neutral-200 border border-neutral-200/60 dark:border-neutral-700/60 text-xs sm:text-sm font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500/20"
             >
               <option value="trending">Populer / Trending</option>
               <option value="latest">Terbaru</option>
