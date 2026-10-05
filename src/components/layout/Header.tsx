@@ -43,7 +43,6 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="sticky top-0 z-40 w-full bg-white/85 dark:bg-neutral-900/85 backdrop-blur-md border-b border-neutral-200/70 dark:border-neutral-800/80 transition-colors">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 h-16 sm:h-18 flex items-center justify-between gap-2.5 sm:gap-6">
-        {/* Brand Logo */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <a
             href="/"
@@ -67,7 +66,6 @@ export const Header: React.FC<HeaderProps> = ({
           </a>
         </div>
 
-        {/* Global Search Bar */}
         <div className="flex-1 max-w-2xl relative min-w-0">
           <div className="relative flex items-center">
             <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-neutral-400 dark:text-neutral-500 absolute left-3.5 sm:left-4 pointer-events-none" />
@@ -100,9 +98,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Right Action Tools */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          {/* Boards / Saved Button */}
           <Button
             variant="secondary"
             size="md"
@@ -119,7 +115,6 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </Button>
 
-          {/* Dark Mode Toggle */}
           <Button
             variant="ghost"
             size="icon"

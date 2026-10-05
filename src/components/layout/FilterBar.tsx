@@ -20,7 +20,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   filters,
   onFilterChange,
   onResetFilters,
-  totalResults,
 }) => {
   const isFiltered =
     filters.mediaType !== 'all' ||
@@ -30,9 +29,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   return (
     <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 text-xs sm:text-sm">
-        {/* Left Side: Media Type Tabs & Reset */}
         <div className="flex items-center gap-2 flex-wrap">
-          {/* Media Type Segmented Pills */}
           <div className="inline-flex p-1 rounded-full bg-neutral-100 dark:bg-neutral-800/80 border border-neutral-200/60 dark:border-neutral-700/60">
             <button
               onClick={() => onFilterChange('mediaType', 'all')}
@@ -69,7 +66,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             </button>
           </div>
 
-          {/* Reset Filters Button */}
           {isFiltered && (
             <button
               onClick={onResetFilters}
@@ -82,15 +78,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           )}
         </div>
 
-        {/* Right Side: Sort Selector & Results Counter */}
         <div className="flex items-center justify-between sm:justify-end gap-2.5 sm:gap-3 w-full sm:w-auto">
-          <span className="text-xs text-neutral-500 dark:text-neutral-400">
-            <span className="font-semibold text-neutral-900 dark:text-neutral-100">
-              {totalResults}
-            </span>{' '}
-            karya AI
-          </span>
-
           <div className="relative inline-flex items-center">
             <SlidersHorizontal className="w-3.5 h-3.5 text-neutral-400 absolute left-3 pointer-events-none" />
             <select

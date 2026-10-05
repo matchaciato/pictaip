@@ -28,7 +28,6 @@ export const Pagination: React.FC<PaginationProps> = ({
     window.scrollTo({ top: 120, behavior: 'smooth' });
   };
 
-  // Generate page numbers array with intelligent ellipsis
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
     const maxVisible = 5;
@@ -50,7 +49,6 @@ export const Pagination: React.FC<PaginationProps> = ({
 
   return (
     <div className="mt-8 pt-6 border-t border-neutral-200/70 dark:border-neutral-800 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 select-none">
-      {/* Result Range Info */}
       <div className="text-xs text-neutral-500 dark:text-neutral-400 text-center sm:text-left">
         Menampilkan{' '}
         <strong className="text-neutral-900 dark:text-neutral-100">
@@ -59,9 +57,7 @@ export const Pagination: React.FC<PaginationProps> = ({
         dari <strong className="text-neutral-900 dark:text-neutral-100">{totalResults}</strong> visual AI
       </div>
 
-      {/* Page Navigation Controls */}
       <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap justify-center">
-        {/* Previous Button */}
         <button
           onClick={() => handlePageClick(currentPage - 1)}
           disabled={currentPage === 1}
@@ -71,7 +67,6 @@ export const Pagination: React.FC<PaginationProps> = ({
           <ChevronLeft className="w-4 h-4" />
         </button>
 
-        {/* Page Number Buttons */}
         {getPageNumbers().map((page, idx) => {
           if (page === '...') {
             return (
@@ -102,7 +97,6 @@ export const Pagination: React.FC<PaginationProps> = ({
           );
         })}
 
-        {/* Next Button */}
         <button
           onClick={() => handlePageClick(currentPage + 1)}
           disabled={currentPage === totalPages}
@@ -113,7 +107,6 @@ export const Pagination: React.FC<PaginationProps> = ({
         </button>
       </div>
 
-      {/* Page Size Selector */}
       {onPageSizeChange && (
         <div className="flex items-center gap-2 text-xs text-neutral-500">
           <span>Per halaman:</span>
