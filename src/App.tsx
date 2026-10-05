@@ -5,11 +5,12 @@ import { CategoryPills } from './components/layout/CategoryPills';
 import { FilterBar } from './components/layout/FilterBar';
 import { MasonryGrid } from './components/feed/MasonryGrid';
 import { DetailModal } from './components/modal/DetailModal';
+import { BoardDrawer } from './components/collections/BoardDrawer';
+import { Footer } from './components/layout/Footer';
 import { useFilter } from './hooks/useFilter';
+import { useBoards } from './hooks/useBoards';
 import { MOCK_MEDIA_ITEMS } from './data/mockMedia';
 import type { MediaItem, MediaCategory } from './types/media';
-import { Modal } from './components/common/Modal';
-import { Bookmark } from 'lucide-react';
 
 function MainApp() {
   const { showToast } = useToast();
@@ -26,20 +27,19 @@ function MainApp() {
     return false;
   });
 
-  // Saved pins in LocalStorage
-  const [savedPins, setSavedPins] = useState<string[]>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const stored = localStorage.getItem('pictaip_saved_pins');
-        return stored ? JSON.parse(stored) : [];
-      } catch {
-        return [];
-      }
-    }
-    return [];
-  });
+  // State management for Boards & Saved Pins
+  const {
+    boards,
+    activeBoardId,
+    setActiveBoardId,
+    createBoard,
+    deleteBoard,
+    togglePinInBoard,
+    toggleQuickSave,
+    allSavedPinIds,
+  } = useBoards();
 
-  const [isBoardsModalOpen, setIsBoardsModalOpen] = useState(false);
+  const [isBoardsDrawerOpen, setIsBoardsDrawerOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null);
 
   const { filters, updateFilter, resetFilters, filteredItems, totalResults } =
@@ -56,15 +56,6 @@ function MainApp() {
     }
   }, [isDarkMode]);
 
-  // Persist saved pins to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem('pictaip_saved_pins', JSON.stringify(savedPins));
-    } catch (e) {
-      console.error('Failed to save pins to localStorage:', e);
-    }
-  }, [savedPins]);
-
   // Deep linking: read '?pin=id' from URL on load
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -74,6 +65,22 @@ function MainApp() {
       if (found) setSelectedItem(found);
     }
   }, []);
+
+  // Keyboard shortcut 'b' or 'B' to toggle boards drawer
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeTag = document.activeElement?.tagName.toLowerCase();
+      const isInput = activeTag === 'input' || activeTag === 'textarea';
+
+      if ((e.key === 'b' || e.key === 'B') && !isInput && !selectedItem) {
+        e.preventDefault();
+        setIsBoardsDrawerOpen((prev) => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedItem]);
 
   // Update URL on pin selection
   const handleOpenDetail = (item: MediaItem) => {
@@ -100,34 +107,26 @@ function MainApp() {
 
   const handleToggleSave = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setSavedPins((prev) => {
-      const isAlreadySaved = prev.includes(id);
-      if (isAlreadySaved) {
-        showToast('Item dihapus dari Board tersimpan', 'info');
-        return prev.filter((pinId) => pinId !== id);
-      } else {
-        showToast('Item berhasil disimpan ke Board!', 'success');
-        return [...prev, id];
-      }
-    });
+    const added = toggleQuickSave(id);
+    if (added) {
+      showToast('Visual berhasil disimpan ke Board!', 'success');
+    } else {
+      showToast('Visual dihapus dari Board', 'info');
+    }
   };
 
   const handleSelectCategory = (cat: MediaCategory) => {
     updateFilter('category', cat);
   };
 
-  const savedItemsList = MOCK_MEDIA_ITEMS.filter((item) =>
-    savedPins.includes(item.id)
-  );
-
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 flex flex-col transition-colors selection:bg-red-500/20 selection:text-red-700 dark:selection:text-red-300">
-      {/* 1. Pinterest Header */}
+      {/* 1. Header Navigation */}
       <Header
         searchQuery={filters.searchQuery}
         onSearchChange={(q) => updateFilter('searchQuery', q)}
-        savedCount={savedPins.length}
-        onOpenBoards={() => setIsBoardsModalOpen(true)}
+        savedCount={allSavedPinIds.length}
+        onOpenBoards={() => setIsBoardsDrawerOpen(true)}
         isDarkMode={isDarkMode}
         onToggleDarkMode={toggleDarkMode}
       />
@@ -153,7 +152,7 @@ function MainApp() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4">
         <MasonryGrid
           items={filteredItems}
-          savedPins={savedPins}
+          savedPins={allSavedPinIds}
           onToggleSave={handleToggleSave}
           onSelect={handleOpenDetail}
           onResetFilters={resetFilters}
@@ -166,7 +165,7 @@ function MainApp() {
         allItems={MOCK_MEDIA_ITEMS}
         isOpen={selectedItem !== null}
         onClose={handleCloseDetail}
-        isSaved={selectedItem ? savedPins.includes(selectedItem.id) : false}
+        isSaved={selectedItem ? allSavedPinIds.includes(selectedItem.id) : false}
         onToggleSave={handleToggleSave}
         onSelectRelated={(relatedItem) => {
           handleOpenDetail(relatedItem);
@@ -178,77 +177,22 @@ function MainApp() {
         }}
       />
 
-      {/* 6. Board / Saved Pins Modal */}
-      <Modal
-        isOpen={isBoardsModalOpen}
-        onClose={() => setIsBoardsModalOpen(false)}
-        title="Board Koleksi Saya"
-        maxWidth="max-w-2xl"
-      >
-        <div className="p-4 sm:p-6">
-          {savedItemsList.length === 0 ? (
-            <div className="py-12 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center mx-auto mb-3">
-                <Bookmark className="w-6 h-6" />
-              </div>
-              <h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-100 mb-1">
-                Belum ada visual yang disimpan
-              </h3>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400 max-w-sm mx-auto">
-                Arahkan kursor pada kartu visual di feed dan klik tombol &quot;Simpan&quot; untuk mengoleksi karya AI favorit Anda.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-xs text-neutral-500 pb-2 border-b border-neutral-100 dark:border-neutral-800">
-                <span>{savedItemsList.length} pin tersimpan</span>
-                <button
-                  onClick={() => {
-                    setSavedPins([]);
-                    showToast('Semua pin tersimpan telah dihapus', 'info');
-                  }}
-                  className="text-red-600 hover:text-red-700 dark:text-red-400 cursor-pointer font-medium"
-                >
-                  Hapus Semua
-                </button>
-              </div>
+      {/* 6. Comprehensive Board & Collections Drawer */}
+      <BoardDrawer
+        isOpen={isBoardsDrawerOpen}
+        onClose={() => setIsBoardsDrawerOpen(false)}
+        boards={boards}
+        activeBoardId={activeBoardId}
+        onSelectBoard={setActiveBoardId}
+        onCreateBoard={createBoard}
+        onDeleteBoard={deleteBoard}
+        onRemovePin={togglePinInBoard}
+        allItems={MOCK_MEDIA_ITEMS}
+        onOpenDetail={handleOpenDetail}
+      />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto custom-scrollbar pr-1">
-                {savedItemsList.map((item) => (
-                  <div
-                    key={item.id}
-                    onClick={() => {
-                      setIsBoardsModalOpen(false);
-                      handleOpenDetail(item);
-                    }}
-                    className="flex items-center gap-3 p-2.5 rounded-2xl bg-neutral-100/70 dark:bg-neutral-800/60 border border-neutral-200/50 dark:border-neutral-700/50 group cursor-pointer hover:bg-neutral-200/60 dark:hover:bg-neutral-800 transition-colors"
-                  >
-                    <img
-                      src={item.previewUrl}
-                      alt={item.title}
-                      className="w-14 h-14 rounded-xl object-cover shrink-0"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 truncate">
-                        {item.title}
-                      </h4>
-                      <p className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate mt-0.5">
-                        {item.metadata.modelName}
-                      </p>
-                      <button
-                        onClick={(e) => handleToggleSave(item.id, e)}
-                        className="text-[10px] text-red-500 hover:underline mt-1 cursor-pointer"
-                      >
-                        Hapus dari board
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </Modal>
+      {/* 7. Footer */}
+      <Footer />
     </div>
   );
 }
