@@ -24,6 +24,22 @@ export type MediaCategory =
   | 'Nature & Animals'
   | 'Logos & Vector';
 
+export const MEDIA_CATEGORIES = [
+  'All',
+  'Photorealistic',
+  'Cinematic',
+  'Cyberpunk',
+  'Anime & Manga',
+  '3D & Clay',
+  'Architecture',
+  'Sci-Fi',
+  'Nature & Animals',
+  'Logos & Vector',
+] as const;
+
+export const MEDIA_TYPES = ['image', 'video'] as const;
+
+
 export interface AIMetadata {
   modelId: AIModelId;
   modelName: string;

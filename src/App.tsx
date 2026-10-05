@@ -3,14 +3,17 @@ import { ToastProvider, useToast } from './context/ToastContext';
 import { Header } from './components/layout/Header';
 import { CategoryPills } from './components/layout/CategoryPills';
 import { FilterBar } from './components/layout/FilterBar';
+import { MasonryGrid } from './components/feed/MasonryGrid';
 import { useFilter } from './hooks/useFilter';
 import { MOCK_MEDIA_ITEMS } from './data/mockMedia';
-import { MediaCategory } from './types/media';
-import { Sparkles, Layers, Search, Bookmark } from 'lucide-react';
+import type { MediaItem, MediaCategory } from './types/media';
 import { Modal } from './components/common/Modal';
+import { Bookmark, Sparkles, Trash2, ExternalLink } from 'lucide-react';
 
 function MainApp() {
   const { showToast } = useToast();
+
+  // Dark mode persistence
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       return (
@@ -22,15 +25,21 @@ function MainApp() {
     return false;
   });
 
+  // Saved pins in LocalStorage
   const [savedPins, setSavedPins] = useState<string[]>(() => {
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('pictaip_saved_pins');
-      return stored ? JSON.parse(stored) : [];
+      try {
+        const stored = localStorage.getItem('pictaip_saved_pins');
+        return stored ? JSON.parse(stored) : [];
+      } catch {
+        return [];
+      }
     }
     return [];
   });
 
   const [isBoardsModalOpen, setIsBoardsModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null);
 
   const { filters, updateFilter, resetFilters, filteredItems, totalResults } =
     useFilter(MOCK_MEDIA_ITEMS);
@@ -46,6 +55,15 @@ function MainApp() {
     }
   }, [isDarkMode]);
 
+  // Persist saved pins to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('pictaip_saved_pins', JSON.stringify(savedPins));
+    } catch (e) {
+      console.error('Failed to save pins to localStorage:', e);
+    }
+  }, [savedPins]);
+
   const toggleDarkMode = () => {
     setIsDarkMode((prev) => {
       const next = !prev;
@@ -54,13 +72,31 @@ function MainApp() {
     });
   };
 
+  const handleToggleSave = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSavedPins((prev) => {
+      const isAlreadySaved = prev.includes(id);
+      if (isAlreadySaved) {
+        showToast('Item dihapus dari Board tersimpan', 'info');
+        return prev.filter((pinId) => pinId !== id);
+      } else {
+        showToast('Item berhasil disimpan ke Board!', 'success');
+        return [...prev, id];
+      }
+    });
+  };
+
   const handleSelectCategory = (cat: MediaCategory) => {
     updateFilter('category', cat);
   };
 
+  const savedItemsList = MOCK_MEDIA_ITEMS.filter((item) =>
+    savedPins.includes(item.id)
+  );
+
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 flex flex-col transition-colors selection:bg-red-500/20 selection:text-red-700 dark:selection:text-red-300">
-      {/* 1. Header Navigation */}
+      {/* 1. Pinterest Header */}
       <Header
         searchQuery={filters.searchQuery}
         onSearchChange={(q) => updateFilter('searchQuery', q)}
@@ -70,7 +106,7 @@ function MainApp() {
         onToggleDarkMode={toggleDarkMode}
       />
 
-      {/* 2. Horizontal Category Pills */}
+      {/* 2. Category Pills Navigation */}
       <CategoryPills
         selectedCategory={filters.category}
         onSelectCategory={handleSelectCategory}
@@ -87,115 +123,85 @@ function MainApp() {
         totalResults={totalResults}
       />
 
-      {/* Main Content Stage */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-4">
-        {/* Feed Status Summary */}
-        <div className="mb-4 flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
-          <div className="flex items-center gap-2">
-            <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>
-              Kategori: <strong className="text-neutral-800 dark:text-neutral-200">{filters.category}</strong>
-            </span>
-            {filters.searchQuery && (
-              <span>
-                &bull; Kata kunci: &ldquo;<strong className="text-neutral-800 dark:text-neutral-200">{filters.searchQuery}</strong>&rdquo;
-              </span>
-            )}
-          </div>
-          <span className="hidden sm:inline">
-            Fase 2: Komponen Dasar & Shell Navigasi Terhubung
-          </span>
-        </div>
-
-        {/* Temporary Feed Showcase Card List (Fase 2 state inspection before Fase 3 Masonry) */}
-        {filteredItems.length === 0 ? (
-          <div className="py-20 flex flex-col items-center justify-center text-center">
-            <div className="w-16 h-16 rounded-3xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-400 dark:text-neutral-500 mb-4">
-              <Search className="w-8 h-8" />
-            </div>
-            <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-1">
-              Tidak ada visual AI yang cocok
-            </h3>
-            <p className="text-sm text-neutral-500 dark:text-neutral-400 max-w-md mb-4">
-              Coba cari dengan kata kunci lain, ganti pilihan model AI, atau reset filter Anda.
-            </p>
-            <button
-              onClick={resetFilters}
-              className="px-4 py-2 text-sm font-semibold rounded-full bg-red-600 hover:bg-red-700 text-white cursor-pointer transition-colors shadow-sm"
-            >
-              Reset Semua Filter
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {filteredItems.slice(0, 8).map((item) => (
-              <div
-                key={item.id}
-                className="group relative rounded-2xl overflow-hidden border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm hover:shadow-md transition-all cursor-pointer"
-                onClick={() => showToast(`Item dipilih: ${item.title}`, 'info')}
-              >
-                <div
-                  className="aspect-[3/4] relative overflow-hidden flex items-center justify-center"
-                  style={{ backgroundColor: item.dominantColor }}
-                >
-                  <img
-                    src={item.previewUrl}
-                    alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
-                  />
-                  {item.type === 'video' && (
-                    <span className="absolute top-3 left-3 px-2 py-0.5 text-[11px] font-semibold rounded-full bg-black/60 text-white backdrop-blur-md flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
-                      Video
-                    </span>
-                  )}
-                  <span className="absolute top-3 right-3 px-2 py-0.5 text-[10px] font-bold rounded-full bg-black/50 text-white backdrop-blur-md">
-                    {item.metadata.modelName}
-                  </span>
-                </div>
-                <div className="p-3">
-                  <h4 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 line-clamp-1">
-                    {item.title}
-                  </h4>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400 line-clamp-1 mt-0.5">
-                    {item.metadata.prompt}
-                  </p>
-                  <div className="mt-2.5 flex items-center justify-between text-[11px] text-neutral-400">
-                    <span>{item.author.name}</span>
-                    <span>{item.stats.views.toLocaleString()} views</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+      {/* 4. Fluid Masonry Grid Content */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4">
+        <MasonryGrid
+          items={filteredItems}
+          savedPins={savedPins}
+          onToggleSave={handleToggleSave}
+          onSelect={(item) => {
+            setSelectedItem(item);
+            showToast(`Membuka: ${item.title}`, 'info');
+          }}
+          onResetFilters={resetFilters}
+        />
       </main>
 
-      {/* Boards Modal */}
+      {/* 5. Board / Saved Pins Modal */}
       <Modal
         isOpen={isBoardsModalOpen}
         onClose={() => setIsBoardsModalOpen(false)}
-        title="Board Koleksi Anda"
-        maxWidth="max-w-lg"
+        title="Board Koleksi Saya"
+        maxWidth="max-w-2xl"
       >
-        <div className="p-6 text-center">
-          <div className="w-12 h-12 rounded-2xl bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center mx-auto mb-3">
-            <Bookmark className="w-6 h-6" />
-          </div>
-          <h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-100 mb-1">
-            Pin & Koleksi Tersimpan
-          </h3>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400 max-w-sm mx-auto mb-4">
-            Simpan prompt dan visual AI favorit Anda ke dalam board bertema untuk diakses kapan saja.
-          </p>
-          <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200/60 dark:border-neutral-700/60 text-xs text-neutral-600 dark:text-neutral-300">
-            {savedPins.length === 0 ? (
-              <span>Belum ada pin yang disimpan. Jelajahi feed dan klik tombol &quot;Simpan&quot; pada gambar/video yang Anda suka!</span>
-            ) : (
-              <span>Anda memiliki <strong>{savedPins.length} pin</strong> tersimpan di browser ini.</span>
-            )}
-          </div>
+        <div className="p-4 sm:p-6">
+          {savedItemsList.length === 0 ? (
+            <div className="py-12 text-center">
+              <div className="w-12 h-12 rounded-2xl bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center mx-auto mb-3">
+                <Bookmark className="w-6 h-6" />
+              </div>
+              <h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-100 mb-1">
+                Belum ada visual yang disimpan
+              </h3>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 max-w-sm mx-auto">
+                Arahkan kursor pada kartu visual di feed dan klik tombol &quot;Simpan&quot; untuk mengoleksi karya AI favorit Anda.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-xs text-neutral-500 pb-2 border-b border-neutral-100 dark:border-neutral-800">
+                <span>{savedItemsList.length} pin tersimpan</span>
+                <button
+                  onClick={() => {
+                    setSavedPins([]);
+                    showToast('Semua pin tersimpan telah dihapus', 'info');
+                  }}
+                  className="text-red-600 hover:text-red-700 dark:text-red-400 cursor-pointer font-medium"
+                >
+                  Hapus Semua
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto custom-scrollbar pr-1">
+                {savedItemsList.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center gap-3 p-2.5 rounded-2xl bg-neutral-100/70 dark:bg-neutral-800/60 border border-neutral-200/50 dark:border-neutral-700/50 group"
+                  >
+                    <img
+                      src={item.previewUrl}
+                      alt={item.title}
+                      className="w-14 h-14 rounded-xl object-cover shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 truncate">
+                        {item.title}
+                      </h4>
+                      <p className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate mt-0.5">
+                        {item.metadata.modelName}
+                      </p>
+                      <button
+                        onClick={(e) => handleToggleSave(item.id, e)}
+                        className="text-[10px] text-red-500 hover:underline mt-1 cursor-pointer"
+                      >
+                        Hapus dari board
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </Modal>
     </div>

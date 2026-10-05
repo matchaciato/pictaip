@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { MediaItem, FilterState, MediaCategory, Orientation, AIModelId } from '../types/media';
+import type { MediaItem, FilterState, MediaCategory, Orientation, AIModelId } from '../types/media';
 
 export const INITIAL_FILTER_STATE: FilterState = {
   searchQuery: '',

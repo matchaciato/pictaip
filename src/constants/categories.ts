@@ -1,4 +1,4 @@
-import { MediaCategory } from '../types/media';
+import type { MediaCategory } from '../types/media';
 
 export interface CategoryItem {
   id: MediaCategory;

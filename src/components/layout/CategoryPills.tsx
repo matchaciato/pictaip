@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { CATEGORIES } from '../../constants/categories';
-import { MediaCategory } from '../../types/media';
+import type { MediaCategory } from '../../types/media';
 
 export interface CategoryPillsProps {
   selectedCategory: MediaCategory;

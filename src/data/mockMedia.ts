@@ -1,4 +1,4 @@
-import { MediaItem } from '../types/media';
+import type { MediaItem } from '../types/media';
 
 /**
  * Comprehensive production-grade mock database for PictaIP.

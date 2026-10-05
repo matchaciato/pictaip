@@ -8,7 +8,7 @@ import {
   SlidersHorizontal,
   ChevronDown,
 } from 'lucide-react';
-import { FilterState, Orientation, AIModelId } from '../../types/media';
+import type { FilterState, Orientation, AIModelId } from '../../types/media';
 import { AI_MODEL_LIST } from '../../constants/models';
 
 export interface FilterBarProps {

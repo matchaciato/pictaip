@@ -1,4 +1,4 @@
-import { AIModelId } from '../types/media';
+import type { AIModelId } from '../types/media';
 
 export interface AIModelConfig {
   id: AIModelId;
