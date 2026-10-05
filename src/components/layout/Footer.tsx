@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowUp, Sparkles, Heart, Keyboard, ShieldCheck } from 'lucide-react';
+import { ArrowUp, Sparkles, Keyboard } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   const [showBackToTop, setShowBackToTop] = useState(false);
