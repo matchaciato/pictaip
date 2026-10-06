@@ -1,20 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { ToastProvider, useToast } from './context/ToastContext';
 import { Header } from './components/layout/Header';
 import { CategoryPills } from './components/layout/CategoryPills';
 import { FilterBar } from './components/layout/FilterBar';
 import { MasonryGrid } from './components/feed/MasonryGrid';
-import { DetailModal } from './components/modal/DetailModal';
-import { BoardDrawer } from './components/collections/BoardDrawer';
 import { Footer } from './components/layout/Footer';
 import { Pagination } from './components/layout/Pagination';
 import { useFilter } from './hooks/useFilter';
 import { useBoards } from './hooks/useBoards';
 import { useMediaData } from './hooks/useMediaData';
+import { useDevicePerformance } from './hooks/useDevicePerformance';
 import type { MediaItem, MediaCategory } from './types/media';
+
+// Code-splitting: Heavy modal and drawer components loaded asynchronously on demand
+const DetailModal = React.lazy(() =>
+  import('./components/modal/DetailModal').then((m) => ({ default: m.DetailModal }))
+);
+const BoardDrawer = React.lazy(() =>
+  import('./components/collections/BoardDrawer').then((m) => ({ default: m.BoardDrawer }))
+);
 
 function MainApp() {
   const { showToast } = useToast();
+  const perfProfile = useDevicePerformance();
 
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
@@ -27,9 +35,7 @@ function MainApp() {
     return false;
   });
 
-  const {
-    mediaItems,
-  } = useMediaData();
+  const { mediaItems } = useMediaData();
 
   const {
     boards,
@@ -56,7 +62,7 @@ function MainApp() {
     pageSize,
     setPage,
     setPageSize,
-  } = useFilter(mediaItems, 12);
+  } = useFilter(mediaItems, perfProfile.recommendedPageSize);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -92,29 +98,29 @@ function MainApp() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedItem]);
 
-  const handleOpenDetail = (item: MediaItem) => {
+  const handleOpenDetail = useCallback((item: MediaItem) => {
     setSelectedItem(item);
     const url = new URL(window.location.href);
     url.searchParams.set('pin', item.id);
     window.history.pushState({}, '', url.toString());
-  };
+  }, []);
 
-  const handleCloseDetail = () => {
+  const handleCloseDetail = useCallback(() => {
     setSelectedItem(null);
     const url = new URL(window.location.href);
     url.searchParams.delete('pin');
     window.history.pushState({}, '', url.toString());
-  };
+  }, []);
 
-  const toggleDarkMode = () => {
+  const toggleDarkMode = useCallback(() => {
     setIsDarkMode((prev) => {
       const next = !prev;
       showToast(next ? 'Mode Gelap diaktifkan' : 'Mode Terang diaktifkan', 'info');
       return next;
     });
-  };
+  }, [showToast]);
 
-  const handleToggleSave = (id: string, e: React.MouseEvent) => {
+  const handleToggleSave = useCallback((id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     const added = toggleQuickSave(id);
     if (added) {
@@ -122,11 +128,16 @@ function MainApp() {
     } else {
       showToast('Visual dihapus dari Board', 'info');
     }
-  };
+  }, [toggleQuickSave, showToast]);
 
-  const handleSelectCategory = (cat: MediaCategory) => {
+  const handleSelectCategory = useCallback((cat: MediaCategory) => {
     updateFilter('category', cat);
-  };
+  }, [updateFilter]);
+
+  const handleResetFilters = useCallback(() => {
+    resetFilters();
+    showToast('Filter telah direset', 'info');
+  }, [resetFilters, showToast]);
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 flex flex-col transition-colors selection:bg-red-500/20 selection:text-red-700 dark:selection:text-red-300">
@@ -147,10 +158,7 @@ function MainApp() {
       <FilterBar
         filters={filters}
         onFilterChange={updateFilter}
-        onResetFilters={() => {
-          resetFilters();
-          showToast('Filter telah direset', 'info');
-        }}
+        onResetFilters={handleResetFilters}
         totalResults={totalResults}
       />
 
@@ -173,35 +181,39 @@ function MainApp() {
         />
       </main>
 
-      <DetailModal
-        item={selectedItem}
-        allItems={mediaItems}
-        isOpen={selectedItem !== null}
-        onClose={handleCloseDetail}
-        isSaved={selectedItem ? allSavedPinIds.includes(selectedItem.id) : false}
-        onToggleSave={handleToggleSave}
-        onSelectRelated={(relatedItem) => {
-          handleOpenDetail(relatedItem);
-        }}
-        onSelectTag={(tag) => {
-          handleCloseDetail();
-          updateFilter('searchQuery', tag);
-          showToast(`Menyaring tag: #${tag}`, 'info');
-        }}
-      />
+      <Suspense fallback={null}>
+        {selectedItem && (
+          <DetailModal
+            item={selectedItem}
+            allItems={mediaItems}
+            isOpen={selectedItem !== null}
+            onClose={handleCloseDetail}
+            isSaved={allSavedPinIds.includes(selectedItem.id)}
+            onToggleSave={handleToggleSave}
+            onSelectRelated={handleOpenDetail}
+            onSelectTag={(tag) => {
+              handleCloseDetail();
+              updateFilter('searchQuery', tag);
+              showToast(`Menyaring tag: #${tag}`, 'info');
+            }}
+          />
+        )}
 
-      <BoardDrawer
-        isOpen={isBoardsDrawerOpen}
-        onClose={() => setIsBoardsDrawerOpen(false)}
-        boards={boards}
-        activeBoardId={activeBoardId}
-        onSelectBoard={setActiveBoardId}
-        onCreateBoard={createBoard}
-        onDeleteBoard={deleteBoard}
-        onRemovePin={togglePinInBoard}
-        allItems={mediaItems}
-        onOpenDetail={handleOpenDetail}
-      />
+        {isBoardsDrawerOpen && (
+          <BoardDrawer
+            isOpen={isBoardsDrawerOpen}
+            onClose={() => setIsBoardsDrawerOpen(false)}
+            boards={boards}
+            activeBoardId={activeBoardId}
+            onSelectBoard={setActiveBoardId}
+            onCreateBoard={createBoard}
+            onDeleteBoard={deleteBoard}
+            onRemovePin={togglePinInBoard}
+            allItems={mediaItems}
+            onOpenDetail={handleOpenDetail}
+          />
+        )}
+      </Suspense>
 
       <Footer />
     </div>
