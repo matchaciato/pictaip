@@ -25,7 +25,6 @@ export const MediaCard: React.FC<MediaCardProps> = ({
   const [isCopied, setIsCopied] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  // Aspect ratio calculation for zero-CLS container
   const aspectRatio =
     item.metadata.width > 0 && item.metadata.height > 0
       ? `${item.metadata.width} / ${item.metadata.height}`
@@ -67,7 +66,6 @@ export const MediaCard: React.FC<MediaCardProps> = ({
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onSelect(item)}
     >
-      {/* 1. Media Container with Exact Aspect Ratio and Dominant Color Placeholder */}
       <div
         className="relative w-full overflow-hidden"
         style={{
@@ -93,7 +91,6 @@ export const MediaCard: React.FC<MediaCardProps> = ({
           />
         )}
 
-        {/* Video Duration Badge (Top Right when not hovered) */}
         {item.type === 'video' && !isHovered && (
           <div className="absolute top-3 right-3 z-20 pointer-events-none">
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-black/70 text-white backdrop-blur-md">
@@ -103,13 +100,11 @@ export const MediaCard: React.FC<MediaCardProps> = ({
           </div>
         )}
 
-        {/* 4. Hover Overlay with Pinterest Action Suite */}
         <div
           className={`absolute inset-0 z-30 bg-black/35 backdrop-blur-[1px] p-3 flex flex-col justify-between transition-opacity duration-200 ${
             isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
         >
-          {/* Top Row: Save Button */}
           <div className="flex items-center justify-end">
             <button
               onClick={(e) => onToggleSave(item.id, e)}
@@ -120,14 +115,12 @@ export const MediaCard: React.FC<MediaCardProps> = ({
               }`}
               title={isSaved ? 'Tersimpan di Board' : 'Simpan ke Board'}
             >
-              <Bookmark className={`w-3.5 h-3.5 ${isSaved ? 'fill-current' : ''}`} />
+              <Bookmark className={`size-3.5 ${isSaved ? 'fill-current' : ''}`} />
               <span>{isSaved ? 'Tersimpan' : 'Simpan'}</span>
             </button>
           </div>
 
-          {/* Bottom Row: Quick Tools (Copy Prompt & Download) */}
           <div className="flex items-center justify-between">
-            {/* Copy Prompt Button */}
             <button
               onClick={handleCopyPrompt}
               className="p-2 rounded-full bg-white/90 hover:bg-white dark:bg-neutral-800/90 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-100 shadow-md backdrop-blur-md transition-transform active:scale-95 cursor-pointer flex items-center gap-1 text-xs font-semibold px-3"
@@ -135,18 +128,17 @@ export const MediaCard: React.FC<MediaCardProps> = ({
             >
               {isCopied ? (
                 <>
-                  <Check className="w-3.5 h-3.5 text-emerald-500" />
+                  <Check className="size-3.5 text-emerald-500" />
                   <span className="text-emerald-600 dark:text-emerald-400">Tersalin</span>
                 </>
               ) : (
                 <>
-                  <Copy className="w-3.5 h-3.5" />
+                  <Copy className="size-3.5" />
                   <span>Prompt</span>
                 </>
               )}
             </button>
 
-            {/* Quick Download Button */}
             <button
               onClick={handleDownload}
               disabled={isDownloading}
@@ -161,7 +153,6 @@ export const MediaCard: React.FC<MediaCardProps> = ({
         </div>
       </div>
 
-      {/* 5. Minimalist Card Footer Info */}
       <div className="p-2.5 sm:p-3 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
           <img
@@ -174,9 +165,23 @@ export const MediaCard: React.FC<MediaCardProps> = ({
             {item.author.name}
           </span>
         </div>
-        <span className="text-[11px] text-neutral-400 dark:text-neutral-500 shrink-0">
-          {item.metadata.aspectRatio}
-        </span>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="text-[11px] text-neutral-400 dark:text-neutral-500 font-mono">
+            {item.metadata.aspectRatio}
+          </span>
+          <button
+            onClick={(e) => onToggleSave(item.id, e)}
+            className={`sm:hidden p-1 rounded-full transition-colors cursor-pointer ${
+              isSaved
+                ? 'text-red-600 dark:text-red-500'
+                : 'text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200'
+            }`}
+            title={isSaved ? 'Tersimpan di Board' : 'Simpan ke Board'}
+            aria-label={isSaved ? 'Tersimpan' : 'Simpan'}
+          >
+            <Bookmark className={`w-3.5 h-3.5 ${isSaved ? 'fill-current' : ''}`} />
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -287,7 +287,7 @@ export const BoardDrawer: React.FC<BoardDrawerProps> = ({
                           onRemovePin(currentBoard.id, item.id);
                           showToast('Item dihapus dari board', 'info');
                         }}
-                        className="absolute top-2 right-2 p-1.5 rounded-full bg-black/60 hover:bg-red-600 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-sm"
+                        className="absolute top-2 right-2 p-1.5 rounded-full bg-black/60 hover:bg-red-600 text-white sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-pointer shadow-sm"
                         title="Hapus dari board ini"
                       >
                         <Trash2 className="w-3.5 h-3.5" />

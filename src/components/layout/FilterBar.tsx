@@ -78,8 +78,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           )}
         </div>
 
-        <div className="flex items-center justify-between sm:justify-end gap-2.5 sm:gap-3 w-full sm:w-auto">
-          <div className="relative inline-flex items-center">
+        <div className="flex items-center justify-end gap-2.5 sm:gap-3 w-full sm:w-auto">
+          <div className="relative inline-flex items-center w-full sm:w-auto">
             <SlidersHorizontal className="w-3.5 h-3.5 text-neutral-400 absolute left-3 pointer-events-none" />
             <select
               value={filters.sortBy}
@@ -89,7 +89,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                   e.target.value as 'trending' | 'latest' | 'most-downloaded'
                 )
               }
-              className="appearance-none h-8.5 pl-8 pr-8 rounded-full bg-neutral-100 hover:bg-neutral-200/70 dark:bg-neutral-800/80 dark:hover:bg-neutral-700/80 text-neutral-800 dark:text-neutral-200 border border-neutral-200/60 dark:border-neutral-700/60 text-xs sm:text-sm font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500/20"
+              className="w-full sm:w-auto appearance-none h-8.5 pl-8 pr-8 rounded-full bg-neutral-100 hover:bg-neutral-200/70 dark:bg-neutral-800/80 dark:hover:bg-neutral-700/80 text-neutral-800 dark:text-neutral-200 border border-neutral-200/60 dark:border-neutral-700/60 text-xs sm:text-sm font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500/20"
             >
               <option value="trending">Populer / Trending</option>
               <option value="latest">Terbaru</option>

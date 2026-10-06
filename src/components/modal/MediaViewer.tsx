@@ -54,10 +54,10 @@ export const MediaViewer: React.FC<MediaViewerProps> = ({ item, selectedRatio })
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-full min-h-[220px] sm:min-h-[340px] lg:min-h-[420px] bg-neutral-950 flex items-center justify-center p-2.5 sm:p-4 lg:p-6 overflow-hidden group select-none"
+      className="relative w-full h-full min-h-[200px] sm:min-h-[300px] lg:min-h-[460px] bg-neutral-950/95 flex items-center justify-center p-2 sm:p-4 lg:p-6 overflow-hidden group select-none"
     >
       <div
-        className="absolute inset-0 opacity-20 blur-3xl scale-125 pointer-events-none"
+        className="absolute inset-0 opacity-25 blur-3xl scale-125 pointer-events-none"
         style={{
           backgroundImage: `url(${item.previewUrl})`,
           backgroundPosition: 'center',
@@ -67,7 +67,7 @@ export const MediaViewer: React.FC<MediaViewerProps> = ({ item, selectedRatio })
       />
 
       <div
-        className="relative max-w-full max-h-[50vh] sm:max-h-[60vh] lg:max-h-[75vh] flex items-center justify-center rounded-2xl overflow-hidden shadow-2xl transition-all duration-300"
+        className="relative max-w-full max-h-[36vh] sm:max-h-[48vh] lg:max-h-[78vh] flex items-center justify-center rounded-2xl overflow-hidden shadow-2xl transition-all duration-300"
         style={{
           aspectRatio: numericRatio,
           backgroundColor: item.dominantColor,
