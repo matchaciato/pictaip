@@ -1,6 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Maximize2, ZoomIn, ZoomOut, Play, Pause, Volume2, VolumeX } from 'lucide-react';
 import type { MediaItem } from '../../types/media';
+import { optimizeImageUrl } from '../../utils/imageOptimizer';
 
 export interface MediaViewerProps {
   item: MediaItem;
@@ -13,6 +14,14 @@ export const MediaViewer: React.FC<MediaViewerProps> = ({ item, selectedRatio })
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    return () => {
+      if (videoRef.current) {
+        videoRef.current.pause();
+      }
+    };
+  }, [item.id]);
 
   const toggleVideoPlay = () => {
     if (!videoRef.current) return;
@@ -51,15 +60,19 @@ export const MediaViewer: React.FC<MediaViewerProps> = ({ item, selectedRatio })
     numericRatio = `${item.metadata.width} / ${item.metadata.height}`;
   }
 
+  const blurBgUrl = optimizeImageUrl(item.previewUrl, { width: 120, quality: 30 });
+  const optimizedMediaUrl = optimizeImageUrl(item.mediaUrl, { width: 1400, quality: 85 });
+  const optimizedPoster = optimizeImageUrl(item.previewUrl, { width: 720, quality: 75 });
+
   return (
     <div
       ref={containerRef}
       className="relative w-full h-full min-h-[200px] sm:min-h-[300px] lg:min-h-[460px] bg-neutral-950/95 flex items-center justify-center p-2 sm:p-4 lg:p-6 overflow-hidden group select-none"
     >
       <div
-        className="absolute inset-0 opacity-25 blur-3xl scale-125 pointer-events-none"
+        className="modal-blur-bg absolute inset-0 opacity-25 blur-3xl scale-125 pointer-events-none"
         style={{
-          backgroundImage: `url(${item.previewUrl})`,
+          backgroundImage: `url(${blurBgUrl})`,
           backgroundPosition: 'center',
           backgroundSize: 'cover',
         }}
@@ -78,11 +91,12 @@ export const MediaViewer: React.FC<MediaViewerProps> = ({ item, selectedRatio })
             <video
               ref={videoRef}
               src={item.videoUrl}
-              poster={item.previewUrl}
+              poster={optimizedPoster}
               autoPlay
               loop
               muted={isMuted}
               playsInline
+              preload="metadata"
               className="w-full h-full object-cover"
               onPlay={() => setIsPlaying(true)}
               onPause={() => setIsPlaying(false)}
@@ -123,8 +137,9 @@ export const MediaViewer: React.FC<MediaViewerProps> = ({ item, selectedRatio })
             onClick={() => setIsZoomed(!isZoomed)}
           >
             <img
-              src={item.mediaUrl}
+              src={optimizedMediaUrl}
               alt={item.title}
+              decoding="async"
               className={`w-full h-full object-cover transition-transform duration-300 ${
                 isZoomed ? 'scale-150' : 'scale-100'
               }`}

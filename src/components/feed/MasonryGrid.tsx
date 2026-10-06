@@ -12,7 +12,7 @@ export interface MasonryGridProps {
   onResetFilters: () => void;
 }
 
-export const MasonryGrid: React.FC<MasonryGridProps> = ({
+export const MasonryGrid: React.FC<MasonryGridProps> = React.memo(({
   items,
   savedPins,
   onToggleSave,
@@ -47,17 +47,20 @@ export const MasonryGrid: React.FC<MasonryGridProps> = ({
     <div className="w-full flex items-start gap-3 sm:gap-4 md:gap-5">
       {columns.map((columnItems, columnIndex) => (
         <div key={`column-${columnIndex}`} className="flex-1 flex flex-col min-w-0">
-          {columnItems.map((item) => (
+          {columnItems.map((item, itemIndex) => (
             <MediaCard
               key={item.id}
               item={item}
               isSaved={savedPins.includes(item.id)}
               onToggleSave={onToggleSave}
               onSelect={onSelect}
+              priority={itemIndex < 2}
             />
           ))}
         </div>
       ))}
     </div>
   );
-};
+});
+
+MasonryGrid.displayName = 'MasonryGrid';

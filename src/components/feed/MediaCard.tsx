@@ -5,19 +5,22 @@ import { formatDuration } from '../../utils/formatters';
 import { VideoPreview } from './VideoPreview';
 import { useToast } from '../../context/ToastContext';
 import { downloadMediaFile, sanitizeFilename } from '../../utils/downloadHelper';
+import { optimizeImageUrl } from '../../utils/imageOptimizer';
 
 export interface MediaCardProps {
   item: MediaItem;
   isSaved: boolean;
   onToggleSave: (id: string, e: React.MouseEvent) => void;
   onSelect: (item: MediaItem) => void;
+  priority?: boolean;
 }
 
-export const MediaCard: React.FC<MediaCardProps> = ({
+export const MediaCard: React.FC<MediaCardProps> = React.memo(({
   item,
   isSaved,
   onToggleSave,
   onSelect,
+  priority = false,
 }) => {
   const { showToast } = useToast();
   const [isHovered, setIsHovered] = useState(false);
@@ -59,9 +62,12 @@ export const MediaCard: React.FC<MediaCardProps> = ({
     }
   };
 
+  const optimizedPreviewUrl = optimizeImageUrl(item.previewUrl, { width: 540, quality: 75 });
+  const optimizedAvatarUrl = optimizeImageUrl(item.author.avatarUrl, { width: 64, quality: 75 });
+
   return (
     <div
-      className="mb-4 break-inside-avoid group relative rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer select-none bg-neutral-100 dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-800/60 shadow-xs hover:shadow-xl transition-all duration-300"
+      className="content-visibility-auto mb-4 break-inside-avoid group relative rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer select-none bg-neutral-100 dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-800/60 shadow-xs hover:shadow-xl transition-all duration-300"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onSelect(item)}
@@ -81,9 +87,11 @@ export const MediaCard: React.FC<MediaCardProps> = ({
           />
         ) : (
           <img
-            src={item.previewUrl}
+            src={optimizedPreviewUrl}
             alt={item.title}
-            loading="lazy"
+            loading={priority ? 'eager' : 'lazy'}
+            fetchPriority={priority ? 'high' : 'low'}
+            decoding="async"
             onLoad={() => setIsImageLoaded(true)}
             className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-103 ${
               isImageLoaded ? 'opacity-100' : 'opacity-0'
@@ -156,10 +164,11 @@ export const MediaCard: React.FC<MediaCardProps> = ({
       <div className="p-2.5 sm:p-3 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
           <img
-            src={item.author.avatarUrl}
+            src={optimizedAvatarUrl}
             alt={item.author.name}
             className="w-5 h-5 rounded-full object-cover shrink-0"
             loading="lazy"
+            decoding="async"
           />
           <span className="text-xs font-medium text-neutral-800 dark:text-neutral-200 truncate">
             {item.author.name}
@@ -185,4 +194,6 @@ export const MediaCard: React.FC<MediaCardProps> = ({
       </div>
     </div>
   );
-};
+});
+
+MediaCard.displayName = 'MediaCard';
