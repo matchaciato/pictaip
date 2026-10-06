@@ -34,14 +34,12 @@ export const DetailModal: React.FC<DetailModalProps> = ({
   const { showToast } = useToast();
   const [selectedRatio, setSelectedRatio] = useState<string>('1:1');
 
-  // Synchronize initial ratio whenever the selected item changes
   useEffect(() => {
     if (item) {
       setSelectedRatio(item.metadata.aspectRatio || '1:1');
     }
   }, [item?.id, item?.metadata.aspectRatio]);
 
-  // Close on ESC & lock scroll
   useEffect(() => {
     if (!isOpen || !item) return;
 
@@ -59,13 +57,11 @@ export const DetailModal: React.FC<DetailModalProps> = ({
     };
   }, [isOpen, item, onClose]);
 
-  // Dynamically altered prompt incorporating chosen aspect ratio
   const dynamicPrompt = useMemo(() => {
     if (!item) return '';
     return updatePromptWithAspectRatio(item.metadata.prompt, selectedRatio);
   }, [item, selectedRatio]);
 
-  // Dynamically calculated specs
   const dynamicMetadata = useMemo(() => {
     if (!item) return null;
     const ratioOption = ASPECT_RATIO_OPTIONS.find((o) => o.ratio === selectedRatio);
@@ -101,39 +97,31 @@ export const DetailModal: React.FC<DetailModalProps> = ({
       role="dialog"
       aria-modal="true"
     >
-      {/* Dimmed Blur Backdrop */}
       <div
         className="fixed inset-0 bg-black/75 backdrop-blur-md transition-opacity animate-in fade-in duration-200"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* Main Studio Card */}
       <div
         className="relative z-10 w-full max-w-5xl bg-white dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-800 rounded-2xl sm:rounded-4xl shadow-2xl overflow-hidden my-auto max-h-[94vh] sm:max-h-[92vh] flex flex-col animate-in zoom-in-95 fade-in duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Floating Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 sm:top-4 sm:right-4 z-40 p-2 sm:p-2.5 rounded-full bg-white/90 dark:bg-neutral-800/90 hover:bg-white dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-100 shadow-lg backdrop-blur-md transition-all active:scale-95 cursor-pointer"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 z-50 p-2 sm:p-2.5 rounded-full bg-white/95 dark:bg-neutral-800/95 hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-100 shadow-md backdrop-blur-md transition-all active:scale-95 cursor-pointer border border-neutral-200/60 dark:border-neutral-700/60"
           aria-label="Tutup jendela detail"
         >
           <X className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
 
-        {/* Scrollable Container */}
         <div className="overflow-y-auto custom-scrollbar flex-1">
-          {/* Dual-Pane Studio Layout */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 border-b border-neutral-100 dark:border-neutral-800">
-            {/* Left Column: Media Stage (55% on desktop) */}
-            <div className="lg:col-span-7 bg-neutral-950 flex items-center justify-center overflow-hidden">
+            <div className="lg:col-span-7 bg-neutral-950/95 flex items-center justify-center overflow-hidden lg:sticky lg:top-0 lg:self-start lg:max-h-[92vh]">
               <MediaViewer item={item} selectedRatio={selectedRatio} />
             </div>
 
-            {/* Right Column: Prompt & Metadata Studio (45% on desktop) */}
             <div className="lg:col-span-5 p-4 sm:p-7 flex flex-col justify-between space-y-5 sm:space-y-6 bg-white dark:bg-neutral-900">
-              {/* 1. Header Toolbar (Creator Info + Actions) */}
               <div className="flex items-center justify-between gap-3 pb-3 sm:pb-4 border-b border-neutral-100 dark:border-neutral-800">
                 <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                   <img
@@ -151,8 +139,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                   </div>
                 </div>
 
-                {/* Top Action Buttons */}
-                <div className="flex items-center gap-1.5 shrink-0 pr-9 sm:pr-11 lg:pr-0">
+                <div className="flex items-center gap-1.5 shrink-0 pr-10 sm:pr-12 lg:pr-14">
                   <button
                     onClick={handleShare}
                     className="p-2 sm:p-2.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 transition-colors cursor-pointer"
@@ -174,7 +161,6 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                 </div>
               </div>
 
-              {/* 2. Title & Stats Bar */}
               <div>
                 <h1 className="text-xl sm:text-2xl font-extrabold text-neutral-900 dark:text-neutral-100 tracking-tight leading-snug">
                   {item.title}
@@ -201,7 +187,6 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                 </div>
               </div>
 
-              {/* 3. Primary Prompt with Interactive Aspect Ratio Selector */}
               <PromptInspector
                 prompt={dynamicPrompt}
                 negativePrompt={item.metadata.negativePrompt}
@@ -214,17 +199,14 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                 }}
               />
 
-              {/* 4. Generation Specs Breakdown Table (Dynamic based on selected ratio) */}
               <SpecsTable metadata={dynamicMetadata} mediaType={item.type} />
 
-              {/* 5. Download Center */}
               <div className="pt-2">
                 <DownloadDropdown item={item} />
               </div>
             </div>
           </div>
 
-          {/* Bottom Section: More Like This (Related Items) */}
           <div className="p-5 sm:p-7 bg-neutral-50/50 dark:bg-neutral-950/40">
             <RelatedGrid
               currentItem={item}

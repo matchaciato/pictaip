@@ -47,11 +47,11 @@ export const PromptInspector: React.FC<PromptInspectorProps> = ({
             <span>Pilih Rasio Aspek (Update Prompt)</span>
           </div>
           <span className="text-[11px] font-mono font-bold text-red-600 dark:text-red-400 bg-red-500/10 px-2 py-0.5 rounded-md">
-            [rasio: {selectedRatio}]
+            [ratio: {selectedRatio}]
           </span>
         </div>
 
-        <div className="flex flex-wrap gap-1.5">
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5 sm:gap-2">
           {ASPECT_RATIO_OPTIONS.map((opt) => {
             const isSelected = selectedRatio === opt.ratio;
             return (
@@ -59,15 +59,15 @@ export const PromptInspector: React.FC<PromptInspectorProps> = ({
                 key={opt.id}
                 type="button"
                 onClick={() => onSelectRatio(opt.ratio)}
-                className={`px-3 py-1.5 text-xs rounded-full cursor-pointer transition-all active:scale-95 flex items-center gap-1 select-none ${
+                className={`py-1.5 px-2 text-xs rounded-xl cursor-pointer transition-all active:scale-95 flex items-center justify-center gap-1 select-none text-center font-medium ${
                   isSelected
                     ? 'bg-red-600 text-white font-bold shadow-xs'
-                    : 'bg-white dark:bg-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-600 text-neutral-800 dark:text-neutral-200 border border-neutral-200/60 dark:border-neutral-600/60'
+                    : 'bg-white dark:bg-neutral-700/80 hover:bg-neutral-200 dark:hover:bg-neutral-600 text-neutral-800 dark:text-neutral-200 border border-neutral-200/60 dark:border-neutral-600/60'
                 }`}
                 title={`${opt.label}: ${opt.description}`}
               >
                 <span>{opt.ratio}</span>
-                {isSelected && <Check className="w-3 h-3" />}
+                {isSelected && <Check className="w-3 h-3 shrink-0" />}
               </button>
             );
           })}

@@ -61,8 +61,9 @@ export const Pagination: React.FC<PaginationProps> = ({
         <button
           onClick={() => handlePageClick(currentPage - 1)}
           disabled={currentPage === 1}
-          className="p-1.5 sm:p-2 rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
+          className="p-2 sm:p-2.5 rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
           title="Halaman Sebelumnya"
+          aria-label="Halaman Sebelumnya"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
@@ -72,7 +73,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             return (
               <span
                 key={`ellipsis-${idx}`}
-                className="px-1.5 sm:px-2 py-1 text-xs text-neutral-400 select-none"
+                className="px-1 sm:px-2 py-1 text-xs text-neutral-400 select-none"
               >
                 ...
               </span>
@@ -86,7 +87,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             <button
               key={`page-${pageNum}`}
               onClick={() => handlePageClick(pageNum)}
-              className={`min-w-7 sm:min-w-8 h-7 sm:h-8 px-2 sm:px-2.5 rounded-xl text-xs font-semibold cursor-pointer transition-all active:scale-95 ${
+              className={`min-w-8 sm:min-w-9 h-8 sm:h-9 px-2 sm:px-3 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer transition-all active:scale-95 flex items-center justify-center ${
                 isActive
                   ? 'bg-red-600 text-white shadow-xs font-bold'
                   : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
@@ -100,8 +101,9 @@ export const Pagination: React.FC<PaginationProps> = ({
         <button
           onClick={() => handlePageClick(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="p-1.5 sm:p-2 rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
+          className="p-2 sm:p-2.5 rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
           title="Halaman Berikutnya"
+          aria-label="Halaman Berikutnya"
         >
           <ChevronRight className="w-4 h-4" />
         </button>

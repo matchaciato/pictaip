@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { optimizeImageUrl } from '../../utils/imageOptimizer';
 
 export interface VideoPreviewProps {
   videoUrl: string;
@@ -7,7 +8,7 @@ export interface VideoPreviewProps {
   className?: string;
 }
 
-export const VideoPreview: React.FC<VideoPreviewProps> = ({
+export const VideoPreview: React.FC<VideoPreviewProps> = React.memo(({
   videoUrl,
   posterUrl,
   isHovered,
@@ -18,38 +19,41 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
+    if (!isHovered) {
+      setIsPlaying(false);
+      setProgress(0);
+      return;
+    }
+
     const video = videoRef.current;
     if (!video) return;
 
     let isCancelled = false;
+    video.currentTime = 0;
 
-    if (isHovered) {
-      video.currentTime = 0;
-      const playPromise = video.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            if (!isCancelled) {
-              setIsPlaying(true);
-            }
-          })
-          .catch((err) => {
-            // Autoplay rejection or abort on quick mouseout is normal
-            if (err.name !== 'AbortError') {
-              console.debug('[VideoPreview] Autoplay restricted:', err.message);
-            }
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          if (!isCancelled) {
+            setIsPlaying(true);
+          }
+        })
+        .catch((err) => {
+          if (err.name !== 'AbortError') {
+            console.debug('[VideoPreview] Autoplay restricted:', err.message);
+          }
+          if (!isCancelled) {
             setIsPlaying(false);
-          });
-      }
-    } else {
-      video.pause();
-      video.currentTime = 0;
-      setIsPlaying(false);
-      setProgress(0);
+          }
+        });
     }
 
     return () => {
       isCancelled = true;
+      if (video) {
+        video.pause();
+      }
     };
   }, [isHovered]);
 
@@ -61,34 +65,36 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
     }
   };
 
+  const optimizedPoster = optimizeImageUrl(posterUrl, { width: 540, quality: 75 });
+
   return (
     <div className={`relative w-full h-full overflow-hidden ${className}`}>
-      {/* Poster Image */}
       <img
-        src={posterUrl}
+        src={optimizedPoster}
         alt=""
         aria-hidden="true"
+        decoding="async"
         className={`w-full h-full object-cover transition-opacity duration-300 ${
           isPlaying ? 'opacity-0' : 'opacity-100'
         }`}
         loading="lazy"
       />
 
-      {/* Video Element (Muted & Loop) */}
-      <video
-        ref={videoRef}
-        src={videoUrl}
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        onTimeUpdate={handleTimeUpdate}
-        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
-          isPlaying ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
-      />
+      {isHovered && (
+        <video
+          ref={videoRef}
+          src={videoUrl}
+          muted
+          loop
+          playsInline
+          preload="none"
+          onTimeUpdate={handleTimeUpdate}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+            isPlaying ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
+        />
+      )}
 
-      {/* Playback Progress Indicator */}
       {isPlaying && (
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/40 z-10">
           <div
@@ -99,4 +105,6 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
       )}
     </div>
   );
-};
+});
+
+VideoPreview.displayName = 'VideoPreview';

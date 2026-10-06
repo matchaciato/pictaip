@@ -6,17 +6,13 @@ interface UseMasonryOptions {
   maxColumns?: number;
 }
 
-/**
- * Custom hook that calculates responsive column count and balances items
- * across columns using a greedy shortest-column algorithm to minimize vertical gaps.
- */
 export function useMasonryColumns(items: MediaItem[], options: UseMasonryOptions = {}) {
   const { minColumns = 1, maxColumns = 5 } = options;
 
   const [columnCount, setColumnCount] = useState<number>(() => {
     if (typeof window === 'undefined') return 3;
     const width = window.innerWidth;
-    if (width < 540) return 2;
+    if (width < 500) return 1;
     if (width < 768) return 2;
     if (width < 1024) return 3;
     if (width < 1440) return 4;
@@ -30,7 +26,7 @@ export function useMasonryColumns(items: MediaItem[], options: UseMasonryOptions
       const width = window.innerWidth;
       let count = 3;
 
-      if (width < 540) count = 2;
+      if (width < 500) count = 1;
       else if (width < 768) count = 2;
       else if (width < 1024) count = 3;
       else if (width < 1440) count = 4;
@@ -54,13 +50,11 @@ export function useMasonryColumns(items: MediaItem[], options: UseMasonryOptions
     };
   }, [minColumns, maxColumns]);
 
-  // Greedy Height Balancing Algorithm
   const columns = useMemo(() => {
     const cols: MediaItem[][] = Array.from({ length: columnCount }, () => []);
     const heights: number[] = Array.from({ length: columnCount }, () => 0);
 
     items.forEach((item) => {
-      // Find the index of the column with the minimum cumulative height
       let shortestColIndex = 0;
       let minHeight = heights[0];
 
@@ -71,7 +65,6 @@ export function useMasonryColumns(items: MediaItem[], options: UseMasonryOptions
         }
       }
 
-      // Calculate approximate aspect ratio height (height / width)
       const ratio =
         item.metadata.width > 0
           ? item.metadata.height / item.metadata.width

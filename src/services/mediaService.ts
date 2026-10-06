@@ -8,24 +8,31 @@ import {
   onSnapshot,
   query,
   orderBy,
+  limit,
   type Unsubscribe,
 } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from './firebase';
+import { mediaCache } from './mediaCache';
 import type { MediaItem } from '../types/media';
 import { MOCK_MEDIA_ITEMS } from '../data/mockMedia';
 
 const MEDIA_COLLECTION = 'media';
+const DEFAULT_QUERY_LIMIT = 100;
 
-/**
- * Service to fetch, subscribe, seed, and manage media items dynamically in Firebase Firestore.
- */
+export interface FetchMediaOptions {
+  limitCount?: number;
+  forceRefresh?: boolean;
+}
+
 export const mediaService = {
-  /**
-   * Fetches all media items.
-   * If Firestore is configured and has documents, returns from Firestore.
-   * Otherwise falls back gracefully to default catalog.
-   */
-  async getMediaItems(): Promise<{ items: MediaItem[]; isFromFirebase: boolean }> {
+  async getMediaItems(options?: FetchMediaOptions): Promise<{ items: MediaItem[]; isFromFirebase: boolean }> {
+    if (!options?.forceRefresh) {
+      const cached = mediaCache.getCachedItems();
+      if (cached && cached.length > 0) {
+        return { items: cached, isFromFirebase: true };
+      }
+    }
+
     if (!isFirebaseConfigured() || !db) {
       console.info('[MediaService] Firebase not configured, serving default catalog.');
       return { items: MOCK_MEDIA_ITEMS, isFromFirebase: false };
@@ -33,16 +40,19 @@ export const mediaService = {
 
     try {
       const mediaRef = collection(db, MEDIA_COLLECTION);
-      const q = query(mediaRef, orderBy('createdAt', 'desc'));
+      const limitCount = options?.limitCount || DEFAULT_QUERY_LIMIT;
+      const q = query(mediaRef, orderBy('createdAt', 'desc'), limit(limitCount));
       const snapshot = await getDocs(q);
 
       if (snapshot.empty) {
         console.info('[MediaService] Firestore collection empty. Seeding initial catalog...');
         await this.seedInitialData(MOCK_MEDIA_ITEMS);
+        mediaCache.setCachedItems(MOCK_MEDIA_ITEMS);
         return { items: MOCK_MEDIA_ITEMS, isFromFirebase: true };
       }
 
       const items = snapshot.docs.map((docSnap) => docSnap.data() as MediaItem);
+      mediaCache.setCachedItems(items);
       return { items, isFromFirebase: true };
     } catch (error) {
       console.warn('[MediaService] Error fetching from Firestore, falling back:', error);
@@ -50,13 +60,15 @@ export const mediaService = {
     }
   },
 
-  /**
-   * Subscribes to real-time changes in Firestore media collection.
-   * Allows administrator to add/edit/delete pictures in Firebase Console and see instant live updates!
-   */
   subscribeToMedia(
-    onUpdate: (items: MediaItem[], isFromFirebase: boolean) => void
+    onUpdate: (items: MediaItem[], isFromFirebase: boolean) => void,
+    options?: { limitCount?: number }
   ): Unsubscribe | null {
+    const cached = mediaCache.getCachedItems();
+    if (cached && cached.length > 0) {
+      onUpdate(cached, true);
+    }
+
     if (!isFirebaseConfigured() || !db) {
       onUpdate(MOCK_MEDIA_ITEMS, false);
       return null;
@@ -64,15 +76,18 @@ export const mediaService = {
 
     try {
       const mediaRef = collection(db, MEDIA_COLLECTION);
-      const q = query(mediaRef, orderBy('createdAt', 'desc'));
+      const limitCount = options?.limitCount || DEFAULT_QUERY_LIMIT;
+      const q = query(mediaRef, orderBy('createdAt', 'desc'), limit(limitCount));
 
       return onSnapshot(
         q,
         (snapshot) => {
           if (!snapshot.empty) {
             const items = snapshot.docs.map((docSnap) => docSnap.data() as MediaItem);
+            mediaCache.setCachedItems(items);
             onUpdate(items, true);
           } else {
+            mediaCache.setCachedItems(MOCK_MEDIA_ITEMS);
             onUpdate(MOCK_MEDIA_ITEMS, true);
           }
         },
@@ -88,9 +103,6 @@ export const mediaService = {
     }
   },
 
-  /**
-   * Seeds initial catalog into Firestore for administrator management.
-   */
   async seedInitialData(items: MediaItem[]): Promise<boolean> {
     if (!isFirebaseConfigured() || !db) return false;
 
@@ -106,14 +118,12 @@ export const mediaService = {
     }
   },
 
-  /**
-   * Admin: Add a new media item to Firestore.
-   */
   async addMediaItem(item: MediaItem): Promise<boolean> {
     if (!isFirebaseConfigured() || !db) return false;
     try {
       const itemRef = doc(db, MEDIA_COLLECTION, item.id);
       await setDoc(itemRef, item);
+      mediaCache.invalidate();
       return true;
     } catch (error) {
       console.error('[MediaService] Failed to add media item:', error);
@@ -121,14 +131,12 @@ export const mediaService = {
     }
   },
 
-  /**
-   * Admin: Update an existing media item in Firestore.
-   */
   async updateMediaItem(id: string, updates: Partial<MediaItem>): Promise<boolean> {
     if (!isFirebaseConfigured() || !db) return false;
     try {
       const itemRef = doc(db, MEDIA_COLLECTION, id);
       await updateDoc(itemRef, updates);
+      mediaCache.invalidate();
       return true;
     } catch (error) {
       console.error('[MediaService] Failed to update media item:', error);
@@ -136,14 +144,12 @@ export const mediaService = {
     }
   },
 
-  /**
-   * Admin: Delete a media item from Firestore.
-   */
   async deleteMediaItem(id: string): Promise<boolean> {
     if (!isFirebaseConfigured() || !db) return false;
     try {
       const itemRef = doc(db, MEDIA_COLLECTION, id);
       await deleteDoc(itemRef);
+      mediaCache.invalidate();
       return true;
     } catch (error) {
       console.error('[MediaService] Failed to delete media item:', error);
@@ -151,3 +157,4 @@ export const mediaService = {
     }
   },
 };
+

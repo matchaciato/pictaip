@@ -180,4 +180,32 @@ body {
   color: var(--foreground);
   font-family: 'Plus Jakarta Sans', var(--font-sans, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif);
   overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
 }
+
+/* Rendering performance: Skip layout and paint for off-screen masonry cards */
+.content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 340px;
+}
+
+.low-perf *,
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.low-perf .backdrop-blur-md,
+.low-perf .backdrop-blur-3xl,
+.low-perf .backdrop-blur-\[1px\] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.low-perf .modal-blur-bg {
+  display: none !important;
+}
+

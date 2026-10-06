@@ -42,7 +42,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white/85 dark:bg-neutral-900/85 backdrop-blur-md border-b border-neutral-200/70 dark:border-neutral-800/80 transition-colors">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 h-16 sm:h-18 flex items-center justify-between gap-2.5 sm:gap-6">
+      <div className="max-w-7xl mx-auto px-2.5 sm:px-6 h-14 sm:h-18 flex items-center justify-between gap-2 sm:gap-6">
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <a
             href="/"
@@ -50,10 +50,11 @@ export const Header: React.FC<HeaderProps> = ({
               e.preventDefault();
               onSearchChange('');
             }}
-            className="flex items-center gap-2.5 group cursor-pointer"
+            className="flex items-center gap-2 group cursor-pointer"
+            title="PictaIP - AI Discovery"
           >
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-red-600 via-rose-500 to-amber-500 flex items-center justify-center text-white shadow-md shadow-red-500/20 group-hover:scale-105 transition-transform">
-              <Sparkles className="w-4.5 h-4.5 sm:w-5 sm:h-5 animate-pulse" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-red-600 via-rose-500 to-amber-500 flex items-center justify-center text-white shadow-md shadow-red-500/20 group-hover:scale-105 transition-transform shrink-0">
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
             </div>
             <div className="hidden sm:flex flex-col">
               <span className="text-xl font-bold tracking-tight text-neutral-950 dark:text-white leading-none">
@@ -68,16 +69,16 @@ export const Header: React.FC<HeaderProps> = ({
 
         <div className="flex-1 max-w-2xl relative min-w-0">
           <div className="relative flex items-center">
-            <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-neutral-400 dark:text-neutral-500 absolute left-3.5 sm:left-4 pointer-events-none" />
+            <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-neutral-400 dark:text-neutral-500 absolute left-3 sm:left-4 pointer-events-none" />
             <input
               ref={searchInputRef}
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Cari prompt, gaya visual AI..."
-              className="w-full h-9.5 sm:h-11 pl-9 sm:pl-11 pr-9 sm:pr-20 bg-neutral-100 dark:bg-neutral-800/90 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 text-xs sm:text-sm rounded-full border border-transparent focus:border-neutral-300 dark:focus:border-neutral-700 focus:bg-white dark:focus:bg-neutral-800 focus:outline-none focus:ring-4 focus:ring-red-500/10 transition-all shadow-inner"
+              placeholder="Cari visual AI..."
+              className="w-full h-9 sm:h-11 pl-8.5 sm:pl-11 pr-8 sm:pr-20 bg-neutral-100 dark:bg-neutral-800/90 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 text-xs sm:text-sm rounded-full border border-transparent focus:border-neutral-300 dark:focus:border-neutral-700 focus:bg-white dark:focus:bg-neutral-800 focus:outline-none focus:ring-4 focus:ring-red-500/10 transition-all shadow-inner"
             />
-            <div className="absolute right-2.5 sm:right-3 flex items-center gap-1.5">
+            <div className="absolute right-2 sm:right-3 flex items-center gap-1.5">
               {searchQuery ? (
                 <button
                   onClick={() => {
@@ -98,18 +99,18 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           <Button
             variant="secondary"
-            size="md"
+            size="sm"
             onClick={onOpenBoards}
-            leftIcon={<Bookmark className="w-4 h-4 text-red-600 dark:text-red-400" />}
-            className="relative"
+            leftIcon={<Bookmark className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-600 dark:text-red-400" />}
+            className="relative px-2.5 sm:px-4 py-1.5 sm:py-2"
             title="Buka Board Tersimpan"
           >
-            <span className="hidden md:inline">Board Saya</span>
+            <span className="hidden sm:inline">Board</span>
             {savedCount > 0 && (
-              <span className="ml-1 px-1.5 py-0.2 text-[10px] font-bold rounded-full bg-red-600 text-white leading-tight">
+              <span className="ml-0.5 sm:ml-1 px-1.5 py-0.2 text-[10px] font-bold rounded-full bg-red-600 text-white leading-tight">
                 {savedCount}
               </span>
             )}
@@ -119,13 +120,14 @@ export const Header: React.FC<HeaderProps> = ({
             variant="ghost"
             size="icon"
             onClick={onToggleDarkMode}
+            className="w-8 h-8 sm:w-9 sm:h-9"
             aria-label={isDarkMode ? 'Beralih ke mode terang' : 'Beralih ke mode gelap'}
             title={isDarkMode ? 'Mode Terang' : 'Mode Gelap'}
           >
             {isDarkMode ? (
-              <Sun className="w-5 h-5 text-amber-400 hover:rotate-45 transition-transform" />
+              <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 hover:rotate-45 transition-transform" />
             ) : (
-              <Moon className="w-5 h-5 text-neutral-600 hover:-rotate-12 transition-transform" />
+              <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-neutral-600 hover:-rotate-12 transition-transform" />
             )}
           </Button>
         </div>
